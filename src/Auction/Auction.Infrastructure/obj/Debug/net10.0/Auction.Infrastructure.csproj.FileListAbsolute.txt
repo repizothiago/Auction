@@ -1,0 +1,11 @@
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\bin\Debug\net10.0\Auction.Infrastructure.deps.json
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\bin\Debug\net10.0\Auction.Infrastructure.dll
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\bin\Debug\net10.0\Auction.Infrastructure.pdb
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\Auction.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\Auction.Infrastructure.AssemblyInfoInputs.cache
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\Auction.Infrastructure.AssemblyInfo.cs
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\Auction.Infrastructure.csproj.CoreCompileInputs.cache
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\Auction.Infrastructure.dll
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\refint\Auction.Infrastructure.dll
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\Auction.Infrastructure.pdb
+C:\workspace\Auction\src\Auction\Auction.Infrastructure\obj\Debug\net10.0\ref\Auction.Infrastructure.dll

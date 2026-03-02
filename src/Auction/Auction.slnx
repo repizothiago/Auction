@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="Auction.Api/Auction.Api.csproj" />
+    <Project Path="Auction.Application/Auction.Application.csproj" />
+    <Project Path="Auction.Domain/Auction.Domain.csproj" />
+    <Project Path="Auction.Infrastructure/Auction.Infrastructure.csproj" />
+    <Project Path="Auction.SharedKernel/Auction.SharedKernel.csproj" />
+  </Folder>
+</Solution>
