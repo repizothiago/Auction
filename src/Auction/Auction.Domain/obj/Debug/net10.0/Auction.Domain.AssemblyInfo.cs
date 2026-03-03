@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Auction.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+87481e90ec4ac2cda3e0c19a0b86584be686bfcf")]
 [assembly: System.Reflection.AssemblyProductAttribute("Auction.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Auction.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

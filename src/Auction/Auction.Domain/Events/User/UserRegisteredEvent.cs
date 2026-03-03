@@ -1,6 +1,6 @@
 using Auction.SharedKernel;
 
-namespace Auction.Domain.Events;
+namespace Auction.Domain.Events.User;
 
 public sealed record UserRegisteredEvent : DomainEvent
 {
