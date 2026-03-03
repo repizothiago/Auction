@@ -28,6 +28,6 @@ public abstract class User : BaseEntity
             return Result.Failure(newPasswordResult.Error);
 
         this.Password = newPasswordResult.Value;
-        return Result.Succes();
+        return Result.Success();
     }
 }
