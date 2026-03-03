@@ -8,7 +8,8 @@ public abstract class BaseEntity
 
     public Guid Id { get; protected set; }
     public DateTime CreatedAt { get; protected set; }
-    public DateTime? UpdatedAt { get; protected set; }
+    public DateTime? UpdatedAt { get; internal set; } // internal para EF Core
+    public long Version { get; internal set; } // internal para EF Core
 
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
@@ -22,6 +23,7 @@ public abstract class BaseEntity
         Id = id;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
+        Version = 0;
     }
 
     protected void RaiseDomainEvent(IDomainEvent domainEvent)

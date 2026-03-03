@@ -6,4 +6,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Commands\Auction\" />
+    <Folder Include="Commands\Bids\" />
+    <Folder Include="DTOs\" />
+    <Folder Include="Queries\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Auction.Domain\Auction.Domain.csproj" />
+    <ProjectReference Include="..\Auction.SharedKernel\Auction.SharedKernel.csproj" />
+  </ItemGroup>
+
 </Project>

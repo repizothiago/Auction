@@ -8,6 +8,10 @@ C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Auction.Api.dll
 C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Auction.Api.pdb
 C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
 C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Microsoft.OpenApi.dll
+C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Scalar.AspNetCore.dll
+C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.csproj.AssemblyReference.cache
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\rpswa.dswa.cache.json
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.GeneratedMSBuildEditorConfig.editorconfig
@@ -16,6 +20,7 @@ C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.Assem
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.csproj.CoreCompileInputs.cache
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.MvcApplicationPartsAssemblyInfo.cache
+C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.sourcelink.json
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\rjimswa.dswa.cache.json
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
@@ -32,7 +37,3 @@ C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\refint\Auction.Ap
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.pdb
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\Auction.Api.genruntimeconfig.cache
 C:\workspace\Auction\src\Auction\Auction.Api\obj\Debug\net10.0\ref\Auction.Api.dll
-C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
-C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
-C:\workspace\Auction\src\Auction\Auction.Api\bin\Debug\net10.0\Scalar.AspNetCore.dll

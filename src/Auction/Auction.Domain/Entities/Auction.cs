@@ -149,7 +149,7 @@ public class Auction : BaseEntity
         // Verificar se atingiu o preço de reserva
         var hasWinner = CurrentPrice.IsGreaterThanOrEqual(ReservePrice);
 
-        RaiseDomainEvent(new AuctionEndedEvent(Id, WinnerId, hasWinner));
+        RaiseDomainEvent(new AuctionEndedEvent(Id, WinnerId, hasWinner.Value, CurrentPrice));
 
         return Result.Success();
     }

@@ -1,4 +1,4 @@
-using Auction.Domain.Events;
+using Auction.Domain.Events.User;
 using Auction.Domain.ValueObjects;
 using Auction.SharedKernel;
 
@@ -14,6 +14,7 @@ public class IndividualEntity : User
     }
 
     public Cpf Cpf { get; private set; }
+
 
     public static Result<IndividualEntity> Create(string emailString, string cpfString, string passwordString)
     {
