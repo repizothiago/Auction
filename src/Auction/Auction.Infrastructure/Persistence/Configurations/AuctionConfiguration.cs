@@ -131,22 +131,12 @@ public class AuctionConfiguration : IEntityTypeConfiguration<Domain.Entities.Auc
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Value Object: AuctionRules (como JSON)
+        // Value Object: AuctionRules (armazenado como JSON)
         builder.OwnsOne(a => a.Rules, rules =>
         {
             rules.ToJson("rules");
-
-            rules.Property(r => r.ExtensionTime)
-                .HasColumnName("extension_time");
-
-            rules.Property(r => r.ExtensionWindow)
-                .HasColumnName("extension_window");
-
-            rules.Property(r => r.MaxBidsPerUser)
-                .HasColumnName("max_bids_per_user");
-
-            rules.Property(r => r.AllowProxyBids)
-                .HasColumnName("allow_proxy_bids");
+            // Quando usa ToJson(), não configure HasColumnName() para propriedades individuais
+            // O EF Core armazena tudo como JSON na coluna "rules"
         });
 
         // Stats

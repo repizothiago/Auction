@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Auction.Infrastructure.Persistence.Migrations
+namespace Auction.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -95,13 +95,13 @@ namespace Auction.Infrastructure.Persistence.Migrations
                 columns: new[] { "id", "created_at", "description", "name", "updated_at", "version" },
                 values: new object[,]
                 {
-                    { new Guid("01c644f9-d103-4a99-91bd-0a0f73c94efd"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6051), "Joias e pedras preciosas", "Joias", null, 0L },
-                    { new Guid("1a93c3db-459c-42a7-88a4-7abaf19a0afc"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6047), "Casas, apartamentos e terrenos", "Imóveis", null, 0L },
-                    { new Guid("565591d9-adf8-4aaf-bdc4-9182700f12cb"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6049), "Obras de arte e colecionáveis", "Arte", null, 0L },
-                    { new Guid("897943a9-5646-4354-a70e-66e4be09c71d"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6054), "Itens antigos e vintage", "Antiguidades", null, 0L },
-                    { new Guid("9f472427-9f69-4f4c-89c5-486e16c2a891"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(2490), "Dispositivos eletrônicos e gadgets", "Eletrônicos", null, 0L },
-                    { new Guid("aa01d274-34ab-464f-9588-867bf4890970"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6039), "Carros, motos e outros veículos", "Veículos", null, 0L },
-                    { new Guid("ffe3bf02-47a8-4228-b6d7-725f75aa5fad"), new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6076), "Outras categorias", "Outros", null, 0L }
+                    { new Guid("1563318e-7548-4620-a936-9d0ed752f2bc"), new DateTime(2026, 3, 4, 1, 16, 58, 871, DateTimeKind.Utc).AddTicks(9170), "Dispositivos eletrônicos e gadgets", "Eletrônicos", null, 0L },
+                    { new Guid("28477285-2e12-43a6-8270-de0bf9519d20"), new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3437), "Carros, motos e outros veículos", "Veículos", null, 0L },
+                    { new Guid("2a0e3fab-1ef8-4b95-8e4a-c10277e159e7"), new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3452), "Itens antigos e vintage", "Antiguidades", null, 0L },
+                    { new Guid("71b730fb-7549-4cb2-bdb2-091b0e7652bd"), new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3450), "Joias e pedras preciosas", "Joias", null, 0L },
+                    { new Guid("75bbd8cf-c16c-4428-a9ca-e39b732b5a84"), new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3453), "Outras categorias", "Outros", null, 0L },
+                    { new Guid("7f7fa068-16c8-43e0-b2c5-20e50311d474"), new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3446), "Casas, apartamentos e terrenos", "Imóveis", null, 0L },
+                    { new Guid("984bc72b-4c10-4826-8024-6c478f0c3c60"), new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3448), "Obras de arte e colecionáveis", "Arte", null, 0L }
                 });
 
             migrationBuilder.CreateIndex(
