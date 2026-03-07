@@ -13,16 +13,8 @@ namespace Auction.Infrastructure.Consumers;
 /// </summary>
 public class AuctionCancelledEventConsumer : KafkaConsumerBase<AuctionCancelledEvent>
 {
-    public AuctionCancelledEventConsumer(
-        IOptions<KafkaOptions> kafkaOptions,
-        IServiceProvider serviceProvider,
-        ILogger<AuctionCancelledEventConsumer> logger)
-        : base(
-            kafkaOptions,
-            serviceProvider,
-            logger,
-            topic: kafkaOptions.Value.Topics.AuctionCancelled,
-            consumerGroupId: kafkaOptions.Value.ConsumerGroups.AuctionService)
+    public AuctionCancelledEventConsumer(IOptions<KafkaOptions> kafkaOptions, IServiceProvider serviceProvider, ILogger<AuctionCancelledEventConsumer> logger)
+        : base(kafkaOptions, serviceProvider, logger, topic: kafkaOptions.Value.Topics.AuctionCancelled, consumerGroupId: kafkaOptions.Value.ConsumerGroups.AuctionService)
     {
     }
 
@@ -50,6 +42,8 @@ public class AuctionCancelledEventConsumer : KafkaConsumerBase<AuctionCancelledE
                 "Auction '{Title}' was cancelled. Status: {Status}",
                 auction.Title,
                 auction.Status);
+
+            Console.WriteLine("Test");
 
             // Aqui você pode:
             // - Enviar notificações para participantes do leilão

@@ -1,6 +1,7 @@
 using Auction.Application.Commands;
 using Auction.Application.Commands.Auction;
 using Auction.Application.DTOs;
+using Auction.Application.Queries.Auction;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auction.Api.Controllers;
@@ -14,14 +15,38 @@ namespace Auction.Api.Controllers;
 public class AuctionsController : ControllerBase
 {
     private readonly ICommandHandler<CancelAuctionCommand> _cancelAuctionHandler;
+    private readonly GetAllAuctionsQueryHandler _getAllAuctionsQueryHandler;
     private readonly ILogger<AuctionsController> _logger;
 
     public AuctionsController(
         ICommandHandler<CancelAuctionCommand> cancelAuctionHandler,
+        GetAllAuctionsQueryHandler getAllAuctionsQueryHandler,
         ILogger<AuctionsController> logger)
     {
         _cancelAuctionHandler = cancelAuctionHandler;
+        _getAllAuctionsQueryHandler = getAllAuctionsQueryHandler;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Obtém todos os leilões com paginação
+    /// </summary>
+    /// <param name="pageNumber">Número da página (padrão: 1)</param>
+    /// <param name="pageSize">Tamanho da página (padrão: 10)</param>
+    /// <param name="cancellationToken">Token de cancelamento</param>
+    /// <returns>Lista paginada de leilões</returns>
+    /// <response code="200">Lista de leilões retornada com sucesso</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(List<Domain.Entities.Auction>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllAuctions(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new GetAllAuctionsQuery(pageNumber, pageSize);
+        var auctions = await _getAllAuctionsQueryHandler.HandleAsync(query, cancellationToken);
+
+        return Ok(auctions);
     }
 
     /// <summary>

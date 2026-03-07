@@ -15,6 +15,29 @@ namespace Auction.Infrastructure;
 
 public static class DependencyInjection
 {
+    /// <summary>
+    /// Mascara a senha da connection string para logs
+    /// </summary>
+    private static string MaskConnectionString(string connectionString)
+    {
+        var parts = connectionString.Split(';');
+        var masked = new List<string>();
+
+        foreach (var part in parts)
+        {
+            if (part.Contains("Password", StringComparison.OrdinalIgnoreCase))
+            {
+                masked.Add("Password=***");
+            }
+            else
+            {
+                masked.Add(part);
+            }
+        }
+
+        return string.Join(";", masked);
+    }
+
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -27,8 +50,14 @@ public static class DependencyInjection
         // PostgreSQL - Entity Framework Core
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {
-            var dbOptions = configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>()
-                ?? new DatabaseOptions();
+            var dbOptions = configuration.GetSection(DatabaseOptions.SectionName).Get<DatabaseOptions>();
+
+            if (dbOptions is null || string.IsNullOrWhiteSpace(dbOptions.ConnectionString))
+            {
+                throw new InvalidOperationException(
+                    "Database configuration is missing or invalid. " +
+                    "Check appsettings.json for 'Database:ConnectionString' section.");
+            }
 
             options.UseNpgsql(dbOptions.ConnectionString, npgsqlOptions =>
             {
@@ -43,6 +72,9 @@ public static class DependencyInjection
 
             options.EnableSensitiveDataLogging(dbOptions.EnableSensitiveDataLogging);
             options.EnableDetailedErrors(dbOptions.EnableDetailedErrors);
+
+            // Log SQL queries no console (apenas para debug)
+            options.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
 
             // Suprimir warning sobre modelo não-determinístico (causado por HasData com DateTime estático)
             options.ConfigureWarnings(warnings =>

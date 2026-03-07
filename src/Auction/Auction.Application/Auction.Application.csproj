@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Commands\Bids\" />
-    <Folder Include="Queries\" />
   </ItemGroup>
 
   <ItemGroup>

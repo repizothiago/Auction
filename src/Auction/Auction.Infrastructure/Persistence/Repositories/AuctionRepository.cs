@@ -15,9 +15,29 @@ public class AuctionRepository : IAuctionRepository
 
     public async Task<Domain.Entities.Auction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Auctions
+        var query = _context.Auctions
+            .AsQueryable()
+            .AsNoTracking()
             .Include(a => a.Category)
-            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+            .Where(a => a.Id == id);
+
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<Domain.Entities.Auction>> GetAllAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _context.Auctions
+            .AsQueryable()
+            .AsNoTracking()
+            .Include(a => a.Category)
+            .OrderByDescending(a => a.CreatedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize);
+
+        return await query.ToListAsync(cancellationToken);
     }
 
     public async Task<List<Domain.Entities.Auction>> GetActiveAuctionsAsync(
