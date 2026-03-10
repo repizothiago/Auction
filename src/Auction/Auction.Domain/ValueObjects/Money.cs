@@ -24,6 +24,14 @@ public sealed record Money
         return Result<bool>.Success(Value >= other.Value);
     }
 
+    public Money Add(Money other)
+    {
+        if (IsDistinctCurrency(other))
+            throw new InvalidOperationException("Cannot add amounts with different currencies.");
+
+        return new Money(Value + other.Value, Currency);
+    }
+
 
     public static Result<Money> Create(decimal value, string currency)
     {

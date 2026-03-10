@@ -117,6 +117,30 @@ public class Auction : BaseEntity
             return Result.Failure(
                 new Error("Auction.NotActive", "Leilão não está ativo"));
 
+        if (bidderId == SellerId)
+            return Result.Failure(
+                new Error("Auction.SellerCannotBid", "Vendedor não pode dar lances no próprio leilão"));
+
+        // Validar valor mínimo do lance
+        var minimumBid = CurrentPrice.Add(BidIncrement);
+        if (!amount.IsGreaterThanOrEqual(minimumBid).Value)
+            return Result.Failure(
+                new Error("Auction.BidTooLow", 
+                    $"Lance deve ser no mínimo {minimumBid.Value} {minimumBid.Currency}"));
+
+        // Validar Buy Now Price
+        if (BuyNowPrice is not null && amount.IsGreaterThanOrEqual(BuyNowPrice).Value)
+        {
+            // Compra direta - finalizar leilão imediatamente
+            CurrentPrice = BuyNowPrice;
+            CurrentWinningBidId = bidId;
+            WinnerId = bidderId;
+            TotalBids++;
+            Status = AuctionStatus.Ended;
+            RaiseDomainEvent(new AuctionEndedEvent(Id, bidderId, true, BuyNowPrice));
+            return Result.Success();
+        }
+
         // Atualizar estado do leilão
         CurrentPrice = amount;
         CurrentWinningBidId = bidId;

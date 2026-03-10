@@ -6,4 +6,6 @@ public sealed record BidPlacedEvent(
     Guid BidId,
     Guid AuctionId,
     Guid BidderId,
-    decimal Amount) : DomainEvent;
+    decimal Amount,
+    bool IsAutoBid,
+    DateTime BidTime) : DomainEvent;

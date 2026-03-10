@@ -11,21 +11,13 @@ namespace Auction.Application.CommandHandlers.Auction;
 /// <summary>
 /// Handler responsável por processar o comando de cancelamento de leilão
 /// </summary>
-public class CancelAuctionCommandHandler : ICommandHandler<CancelAuctionCommand>
+public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
+                                   IUnitOfWork unitOfWork,
+                                   ILogger<CancelAuctionCommandHandler> logger) : ICommandHandler<CancelAuctionCommand>
 {
-    private readonly IAuctionRepository _auctionRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<CancelAuctionCommandHandler> _logger;
-
-    public CancelAuctionCommandHandler(
-        IAuctionRepository auctionRepository,
-        IUnitOfWork unitOfWork,
-        ILogger<CancelAuctionCommandHandler> logger)
-    {
-        _auctionRepository = auctionRepository;
-        _unitOfWork = unitOfWork;
-        _logger = logger;
-    }
+    private readonly IAuctionRepository _auctionRepository = auctionRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ILogger<CancelAuctionCommandHandler> _logger = logger;
 
     public async Task<Result> HandleAsync(
         CancelAuctionCommand command, 

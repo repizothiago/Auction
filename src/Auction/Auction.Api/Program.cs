@@ -1,4 +1,5 @@
 using Auction.Api.Extensions;
+using Auction.Api.Middleware;
 using Auction.Application;
 using Auction.Infrastructure;
 
@@ -22,6 +23,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Middleware de idempotência (deve estar antes de UseAuthorization e MapControllers)
+app.UseIdempotency();
+
 app.UseAuthorization();
 
 app.MapHealthChecks("/health");

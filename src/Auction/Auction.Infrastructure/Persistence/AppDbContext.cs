@@ -18,7 +18,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<Domain.Entities.Auction> Auctions => Set<Domain.Entities.Auction>();
-    // public DbSet<Bid> Bids => Set<Bid>(); // TODO: Criar entidade Bid
+    public DbSet<Bid> Bids => Set<Bid>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Category> Categories => Set<Category>();
 
@@ -47,7 +47,7 @@ public class AppDbContext : DbContext
             property.SetColumnType("decimal(18,2)");
         }
 
-        // Seed de dados de exemplo (Categorias) - TEMPORARIAMENTE DESABILITADO
+        // Seed de dados de exemplo (Desabilitado - usando SQL direto nas migrations)
         // DatabaseSeeder.SeedData(modelBuilder);
     }
 
