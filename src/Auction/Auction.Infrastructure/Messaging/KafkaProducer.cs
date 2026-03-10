@@ -1,9 +1,10 @@
 using System.Text.Json;
 using Auction.Application.Interfaces;
+using Auction.Infrastructure.Options;
 using Auction.SharedKernel;
 using Confluent.Kafka;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Auction.Infrastructure.Messaging;
 
@@ -13,18 +14,28 @@ public class KafkaProducer : IMessageBus, IDisposable
     private readonly ILogger<KafkaProducer> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    public KafkaProducer(IConfiguration configuration, ILogger<KafkaProducer> logger)
+    public KafkaProducer(IOptions<KafkaOptions> kafkaOptions, ILogger<KafkaProducer> logger)
     {
+        var options = kafkaOptions.Value;
+
         var config = new ProducerConfig
         {
-            BootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
-            Acks = Acks.All, // Esperar confirmação de todas as réplicas
-            EnableIdempotence = true, // Garantir exactly-once
-            MaxInFlight = 5,
+            BootstrapServers = options.BootstrapServers,
+            Acks = options.Producer.Acks switch
+            {
+                "all" => Acks.All,
+                "1" => Acks.Leader,
+                "0" => Acks.None,
+                _ => Acks.All
+            },
+            EnableIdempotence = options.Producer.EnableIdempotence,
+            MaxInFlight = options.Producer.MaxInFlight,
+            MessageTimeoutMs = options.Producer.MessageTimeoutMs,
+            RequestTimeoutMs = options.Producer.RequestTimeoutMs,
             MessageSendMaxRetries = 3,
             CompressionType = CompressionType.Snappy,
-            LingerMs = 5, // Aguardar 5ms para batch
-            BatchSize = 16384 // 16KB
+            LingerMs = 5,
+            BatchSize = 16384
         };
 
         _producer = new ProducerBuilder<string, string>(config)
@@ -35,7 +46,7 @@ public class KafkaProducer : IMessageBus, IDisposable
             .Build();
 
         _logger = logger;
-        
+
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,

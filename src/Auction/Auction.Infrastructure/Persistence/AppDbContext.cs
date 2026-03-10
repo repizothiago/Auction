@@ -1,5 +1,6 @@
 using Auction.Domain.Entities;
 using Auction.Domain.Entities.Base;
+using Auction.Infrastructure.Persistence.Seeders;
 using Auction.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,6 +22,16 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Category> Categories => Set<Category>();
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+
+        // Suprimir warning sobre modelo não-determinístico
+        // Causado por HasData com DateTime estático em SeedCategories()
+        optionsBuilder.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -35,6 +46,9 @@ public class AppDbContext : DbContext
         {
             property.SetColumnType("decimal(18,2)");
         }
+
+        // Seed de dados de exemplo (Categorias) - TEMPORARIAMENTE DESABILITADO
+        // DatabaseSeeder.SeedData(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

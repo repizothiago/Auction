@@ -3,7 +3,12 @@ namespace Auction.Application.Interfaces.Repositories;
 public interface IAuctionRepository
 {
     Task<Domain.Entities.Auction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    
+
+    Task<List<Domain.Entities.Auction>> GetAllAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
     Task<List<Domain.Entities.Auction>> GetActiveAuctionsAsync(
         int pageNumber,
         int pageSize,

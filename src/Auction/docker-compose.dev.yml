@@ -1,7 +1,21 @@
 version: '3.8'
 
+# 🎯 Docker Compose para DESENVOLVIMENTO LOCAL
+# Uso: docker-compose -f docker-compose.dev.yml up -d
+# 
+# Inclui apenas a infraestrutura:
+# - PostgreSQL
+# - Redis  
+# - Kafka + Zookeeper
+# - Ferramentas de gerenciamento (pgAdmin, Kafka UI, Redis Commander)
+#
+# A API roda LOCALMENTE no Visual Studio (F5) para ter:
+# ✅ Debug completo
+# ✅ Hot reload
+# ✅ Breakpoints
+
 services:
-  # PostgreSQL - Banco de dados principal (Write)
+  # PostgreSQL - Banco de dados principal
   postgres:
     image: postgres:16-alpine
     container_name: auction-postgres
@@ -23,7 +37,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Redis - Cache distribuído e Read Database
+  # Redis - Cache distribuído
   redis:
     image: redis:7-alpine
     container_name: auction-redis
@@ -62,7 +76,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Kafka - Message Broker para Event-Driven Architecture
+  # Kafka - Message Broker
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: auction-kafka
@@ -139,38 +153,6 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
-
-  # Auction API - Aplicação .NET
-  auction-api:
-    build:
-      context: .
-      dockerfile: Auction.Api/Dockerfile
-    container_name: auction-api
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
-      - Database__ConnectionString=Host=postgres;Port=5432;Database=auction_db;Username=postgres;Password=postgres;Include Error Detail=true
-      - Redis__ConnectionString=redis:6379
-      - Redis__Password=redis123
-      - Kafka__BootstrapServers=kafka:9092
-    ports:
-      - "5000:8080"
-    networks:
-      - auction-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
 volumes:
   postgres-data:

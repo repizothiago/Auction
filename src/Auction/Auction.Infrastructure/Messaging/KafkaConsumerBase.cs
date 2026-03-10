@@ -1,10 +1,11 @@
 using System.Text.Json;
+using Auction.Infrastructure.Options;
 using Auction.SharedKernel;
 using Confluent.Kafka;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Auction.Infrastructure.Messaging;
 
@@ -20,20 +21,27 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
     private readonly JsonSerializerOptions _jsonOptions;
 
     protected KafkaConsumerBase(
-        IConfiguration configuration,
+        IOptions<KafkaOptions> kafkaOptions,
         IServiceProvider serviceProvider,
         ILogger logger,
         string topic,
         string consumerGroupId)
     {
+        var options = kafkaOptions.Value;
+
         var config = new ConsumerConfig
         {
-            BootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
+            BootstrapServers = options.BootstrapServers,
             GroupId = consumerGroupId,
-            AutoOffsetReset = AutoOffsetReset.Earliest,
-            EnableAutoCommit = false, // Commit manual após processamento
-            MaxPollIntervalMs = 300000, // 5 minutos
-            SessionTimeoutMs = 10000,
+            AutoOffsetReset = options.Consumer.AutoOffsetReset switch
+            {
+                "earliest" => AutoOffsetReset.Earliest,
+                "latest" => AutoOffsetReset.Latest,
+                _ => AutoOffsetReset.Earliest
+            },
+            EnableAutoCommit = options.Consumer.EnableAutoCommit,
+            MaxPollIntervalMs = options.Consumer.MaxPollIntervalMs,
+            SessionTimeoutMs = options.Consumer.SessionTimeoutMs,
             EnablePartitionEof = false
         };
 
@@ -47,7 +55,7 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
         ServiceProvider = serviceProvider;
         Logger = logger;
         _topic = topic;
-        
+
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true

@@ -3,24 +3,21 @@ using System;
 using Auction.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Auction.Infrastructure.Persistence.Migrations
+namespace Auction.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260303202847_InitialCreate")]
-    partial class InitialCreate
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -153,56 +150,56 @@ namespace Auction.Infrastructure.Persistence.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9f472427-9f69-4f4c-89c5-486e16c2a891"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(2490),
+                            Id = new Guid("1563318e-7548-4620-a936-9d0ed752f2bc"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 871, DateTimeKind.Utc).AddTicks(9170),
                             Description = "Dispositivos eletrônicos e gadgets",
                             Name = "Eletrônicos",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("aa01d274-34ab-464f-9588-867bf4890970"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6039),
+                            Id = new Guid("28477285-2e12-43a6-8270-de0bf9519d20"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3437),
                             Description = "Carros, motos e outros veículos",
                             Name = "Veículos",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("1a93c3db-459c-42a7-88a4-7abaf19a0afc"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6047),
+                            Id = new Guid("7f7fa068-16c8-43e0-b2c5-20e50311d474"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3446),
                             Description = "Casas, apartamentos e terrenos",
                             Name = "Imóveis",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("565591d9-adf8-4aaf-bdc4-9182700f12cb"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6049),
+                            Id = new Guid("984bc72b-4c10-4826-8024-6c478f0c3c60"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3448),
                             Description = "Obras de arte e colecionáveis",
                             Name = "Arte",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("01c644f9-d103-4a99-91bd-0a0f73c94efd"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6051),
+                            Id = new Guid("71b730fb-7549-4cb2-bdb2-091b0e7652bd"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3450),
                             Description = "Joias e pedras preciosas",
                             Name = "Joias",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("897943a9-5646-4354-a70e-66e4be09c71d"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6054),
+                            Id = new Guid("2a0e3fab-1ef8-4b95-8e4a-c10277e159e7"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3452),
                             Description = "Itens antigos e vintage",
                             Name = "Antiguidades",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("ffe3bf02-47a8-4228-b6d7-725f75aa5fad"),
-                            CreatedAt = new DateTime(2026, 3, 3, 20, 28, 46, 872, DateTimeKind.Utc).AddTicks(6076),
+                            Id = new Guid("75bbd8cf-c16c-4428-a9ca-e39b732b5a84"),
+                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3453),
                             Description = "Outras categorias",
                             Name = "Outros",
                             Version = 0L
@@ -396,30 +393,23 @@ namespace Auction.Infrastructure.Persistence.Migrations
 
                     b.OwnsOne("Auction.Domain.ValueObjects.AuctionRules", "Rules", b1 =>
                         {
-                            b1.Property<Guid>("AuctionId")
-                                .HasColumnType("uuid");
+                            b1.Property<Guid>("AuctionId");
 
-                            b1.Property<bool>("AllowProxyBids")
-                                .HasColumnType("boolean")
-                                .HasColumnName("allow_proxy_bids");
+                            b1.Property<bool>("AllowProxyBids");
 
-                            b1.Property<TimeSpan>("ExtensionTime")
-                                .HasColumnType("interval")
-                                .HasColumnName("extension_time");
+                            b1.Property<TimeSpan>("ExtensionTime");
 
-                            b1.Property<TimeSpan>("ExtensionWindow")
-                                .HasColumnType("interval")
-                                .HasColumnName("extension_window");
+                            b1.Property<TimeSpan>("ExtensionWindow");
 
-                            b1.Property<int>("MaxBidsPerUser")
-                                .HasColumnType("integer")
-                                .HasColumnName("max_bids_per_user");
+                            b1.Property<int>("MaxBidsPerUser");
 
                             b1.HasKey("AuctionId");
 
                             b1.ToTable("auctions");
 
-                            b1.ToJson("rules");
+                            b1
+                                .ToJson("rules")
+                                .HasColumnType("jsonb");
 
                             b1.WithOwner()
                                 .HasForeignKey("AuctionId");
