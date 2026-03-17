@@ -18,6 +18,7 @@ public class Auction : BaseEntity
         StartingPrice = startingPrice;
         ReservePrice = reservedPrice;
         BidIncrement = bidIncrement;
+        CurrentPrice = startingPrice;
         StartDate = startTime;
         EndDate = endTime;
         SellerId = sellerId;

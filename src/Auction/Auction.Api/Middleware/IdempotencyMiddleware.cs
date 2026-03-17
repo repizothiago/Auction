@@ -1,8 +1,4 @@
 using Auction.Application.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Text.Json;
 
 namespace Auction.Api.Middleware;
 

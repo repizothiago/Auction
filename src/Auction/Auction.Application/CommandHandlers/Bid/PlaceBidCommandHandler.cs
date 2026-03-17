@@ -38,7 +38,7 @@ public class PlaceBidCommandHandler
         {
             _logger.LogInformation(
                 "Validando lance: AuctionId={AuctionId}, BidderId={BidderId}, Amount={Amount}",
-                request.AuctionId, request.BidderId, request.Amount);
+                request.AuctionId, request.BidderId, request.Bid.Value);
 
             // 1. Buscar leilão (apenas para validações rápidas)
             var auction = await _auctionRepository.GetByIdAsync(request.AuctionId, cancellationToken);
@@ -46,7 +46,7 @@ public class PlaceBidCommandHandler
                 return Result<Guid>.Failure(new Error("Bid.AuctionNotFound", "Leilão não encontrado"));
 
             // 2. Validações básicas (rápidas)
-            var validationResult = await ValidateBidRules(auction, request.BidderId, request.Amount, cancellationToken);
+            var validationResult = await ValidateBidRules(auction, request.BidderId, request.Bid.Value, cancellationToken);
             if (!validationResult.IsSuccess)
                 return Result<Guid>.Failure(validationResult.Error);
 
@@ -58,9 +58,9 @@ public class PlaceBidCommandHandler
                 bidId,
                 request.AuctionId,
                 request.BidderId,
-                request.Amount,
-                "BRL",
-                false, // IsAutoBid
+                request.Bid.Value,
+                request.Bid.Currency,
+                false,
                 request.IdempotencyKey,
                 DateTime.UtcNow);
 
@@ -79,7 +79,7 @@ public class PlaceBidCommandHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, 
+            _logger.LogError(ex,
                 "Erro ao validar lance: AuctionId={AuctionId}, BidderId={BidderId}",
                 request.AuctionId, request.BidderId);
 
@@ -89,7 +89,7 @@ public class PlaceBidCommandHandler
     }
 
     private async Task<Result> ValidateBidRules(
-        Domain.Entities.Auction auction, 
+        Domain.Entities.Auction auction,
         Guid bidderId,
         decimal amount,
         CancellationToken cancellationToken)
@@ -112,20 +112,20 @@ public class PlaceBidCommandHandler
         var minimumBid = auction.CurrentPrice.Add(auction.BidIncrement);
         if (!amountResult.Value.IsGreaterThanOrEqual(minimumBid).Value)
             return Result.Failure(
-                new Error("Bid.BidTooLow", 
+                new Error("Bid.BidTooLow",
                     $"Lance deve ser no mínimo {minimumBid.Value} {minimumBid.Currency}"));
 
         // 4. Validar número máximo de lances por usuário
         if (auction.Rules.MaxBidsPerUser > 0)
         {
             var userBidCount = await _bidRepository.GetBidCountForUserInAuctionAsync(
-                auction.Id, 
-                bidderId, 
+                auction.Id,
+                bidderId,
                 cancellationToken);
 
             if (userBidCount >= auction.Rules.MaxBidsPerUser)
                 return Result.Failure(
-                    new Error("Bid.MaxBidsExceeded", 
+                    new Error("Bid.MaxBidsExceeded",
                         $"Você atingiu o limite de {auction.Rules.MaxBidsPerUser} lances neste leilão"));
         }
 

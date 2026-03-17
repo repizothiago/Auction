@@ -46,7 +46,8 @@ public class BidConfiguration : IEntityTypeConfiguration<Bid>
 
         builder.Property(b => b.Version)
             .HasColumnName("version")
-            .IsRowVersion()
+            .IsConcurrencyToken()
+            .HasDefaultValue(0)
             .IsRequired();
 
         // Configurar Value Object Money como Owned Entity

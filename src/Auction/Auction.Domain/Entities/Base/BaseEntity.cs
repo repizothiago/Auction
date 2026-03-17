@@ -15,7 +15,6 @@ public abstract class BaseEntity
 
     protected BaseEntity()
     {
-
     }
 
     protected BaseEntity(Guid id, DateTime createdAt, DateTime? updatedAt)

@@ -58,7 +58,7 @@ public class BidRepository : IBidRepository
         return await _context.Bids
             .AsNoTracking()
             .Where(b => b.AuctionId == auctionId && b.BidStatus == BidStatus.Active)
-            .OrderByDescending(b => b.Amount)
+            .OrderByDescending(b => b.Amount.Value)
             .FirstOrDefaultAsync(cancellationToken);
     }
 

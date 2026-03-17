@@ -2,9 +2,7 @@ using Auction.Api.Models.Requests;
 using Auction.Api.Models.Responses;
 using Auction.Application.CommandHandlers.Bid;
 using Auction.Application.Commands.Bid;
-using Auction.Application.Interfaces;
 using Auction.Application.Interfaces.Repositories;
-using Auction.SharedKernel;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -55,12 +53,12 @@ public class BidsController : ControllerBase
     {
         // TODO: Obter BidderId do usuário autenticado (Claims)
         // Por enquanto, usando um ID fictício para desenvolvimento
-        var bidderId = GetCurrentUserId() ?? Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var bidderId = GetCurrentUserId() ?? Guid.Parse("10000000-0000-0000-0000-000000000001");
 
         var command = new PlaceBidCommand(
             auctionId,
             bidderId,
-            request.Amount,
+            request.Bid,
             request.IdempotencyKey);
 
         var result = await _placeBidHandler.HandleAsync(command, cancellationToken);

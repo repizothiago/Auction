@@ -17,7 +17,6 @@ public class AuctionRepository : IAuctionRepository
     {
         var query = _context.Auctions
             .AsQueryable()
-            .AsNoTracking()
             .Include(a => a.Category)
             .Where(a => a.Id == id);
 
