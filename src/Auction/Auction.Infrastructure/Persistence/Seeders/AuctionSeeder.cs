@@ -241,4 +241,4 @@ public static class AuctionSeeder
             .HasData(new { AuctionId = auctionId, Value = bidIncrement, Currency = "BRL" });
     }
 
-    }
+}

@@ -31,7 +31,7 @@ public class IndividualEntity : User
             return Result<IndividualEntity>.Failure(passwordResult.Error);
 
         var user = new IndividualEntity(emailResult.Value, cpfResult.Value, passwordResult.Value);
-        
+
         user.RaiseDomainEvent(new UserRegisteredEvent(user.Id, user.Email.Value, user.Cpf.Value));
 
         return Result<IndividualEntity>.Success(user);

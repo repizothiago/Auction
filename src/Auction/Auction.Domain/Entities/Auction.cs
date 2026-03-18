@@ -126,7 +126,7 @@ public class Auction : BaseEntity
         var minimumBid = CurrentPrice.Add(BidIncrement);
         if (!amount.IsGreaterThanOrEqual(minimumBid).Value)
             return Result.Failure(
-                new Error("Auction.BidTooLow", 
+                new Error("Auction.BidTooLow",
                     $"Lance deve ser no mínimo {minimumBid.Value} {minimumBid.Currency}"));
 
         // Validar Buy Now Price

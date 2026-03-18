@@ -2,4 +2,4 @@
 
 namespace Auction.Domain.Events.Auction;
 
-public sealed record AuctionExtendedEvent(Guid AuctionId,DateTime NewEndDate) : DomainEvent;
+public sealed record AuctionExtendedEvent(Guid AuctionId, DateTime NewEndDate) : DomainEvent;

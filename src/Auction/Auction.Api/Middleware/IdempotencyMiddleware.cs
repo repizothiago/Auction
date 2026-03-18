@@ -41,7 +41,7 @@ public class IdempotencyMiddleware
         if (cachedResponse is not null)
         {
             _logger.LogInformation(
-                "Requisição duplicada detectada. IdempotencyKey={IdempotencyKey}", 
+                "Requisição duplicada detectada. IdempotencyKey={IdempotencyKey}",
                 idempotencyKey.ToString());
 
             // Retornar resposta em cache

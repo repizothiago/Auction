@@ -2,10 +2,10 @@ using Auction.Application.CommandHandlers.Auction;
 using Auction.Application.CommandHandlers.Bid;
 using Auction.Application.Commands;
 using Auction.Application.Commands.Auction;
-using Auction.Application.Commands.Bid;
 using Auction.Application.EventHandlers;
 using Auction.Application.EventHandlers.Bid;
 using Auction.Application.Queries.Auction;
+using Auction.Application.Queries.Bid;
 using Auction.Application.Services;
 using Auction.Domain.Events.Auction;
 using Auction.Domain.Events.Bid;
@@ -39,8 +39,11 @@ public static class DependencyInjection
         // services.AddScoped<ICommandHandler<CreateAuctionCommand, Guid>, CreateAuctionCommandHandler>();
         // services.AddScoped<ICommandHandler<StartAuctionCommand>, StartAuctionCommandHandler>();
 
-        // Query Handlers (CQRS)
+        // Query Handlers (CQRS - Read Side)
         services.AddScoped<GetAllAuctionsQueryHandler>();
+        services.AddScoped<GetBidByIdQueryHandler>();
+        services.AddScoped<GetBidsByAuctionQueryHandler>();
+        services.AddScoped<GetHighestBidQueryHandler>();
 
         return services;
     }

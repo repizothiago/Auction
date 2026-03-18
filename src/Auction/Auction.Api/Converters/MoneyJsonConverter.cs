@@ -51,7 +51,7 @@ public class MoneyJsonConverter : JsonConverter<Money>
         }
 
         var result = Money.Create(value, currency);
-        
+
         if (!result.IsSuccess)
         {
             throw new JsonException($"Failed to create Money: {result.Error?.Message}");

@@ -1,3 +1,4 @@
+using Auction.Api.Extensions;
 using Auction.Application.Commands;
 using Auction.Application.Commands.Auction;
 using Auction.Application.DTOs;
@@ -61,8 +62,8 @@ public class AuctionsController : ControllerBase
     /// <response code="404">Leilão não encontrado</response>
     [HttpPut("{id}/cancel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CancelAuction(
         Guid id,
         [FromBody] CancelAuctionRequest request,
@@ -78,15 +79,12 @@ public class AuctionsController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            var error = result.Error!;
-
-            // Verificar tipo de erro
-            if (error.Code == "Auction.NotFound")
+            var problemDetails = result.ToProblemDetails();
+            return problemDetails.Status switch
             {
-                return NotFound(new { error.Code, error.Message });
-            }
-
-            return BadRequest(new { error.Code, error.Message });
+                StatusCodes.Status404NotFound => NotFound(problemDetails),
+                _ => BadRequest(problemDetails)
+            };
         }
 
         return NoContent();

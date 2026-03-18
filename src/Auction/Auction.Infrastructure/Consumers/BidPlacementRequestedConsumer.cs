@@ -88,7 +88,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
     private async Task ProcessBidPlacementAsync(string message, CancellationToken cancellationToken)
     {
         using var scope = _serviceProvider.CreateScope();
-        
+
         var auctionRepository = scope.ServiceProvider.GetRequiredService<IAuctionRepository>();
         var bidRepository = scope.ServiceProvider.GetRequiredService<IBidRepository>();
         var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
@@ -163,9 +163,9 @@ public class BidPlacementRequestedConsumer : BackgroundService
             if (auction.CurrentWinningBidId.HasValue)
             {
                 var previousBid = await bidRepository.GetByIdAsync(
-                    auction.CurrentWinningBidId.Value, 
+                    auction.CurrentWinningBidId.Value,
                     cancellationToken);
-                
+
                 if (previousBid is not null)
                 {
                     previousBid.Outbid();
@@ -201,7 +201,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
                 catch (InvalidOperationException ex) when (ex.Message.Contains("modificado por outro processo"))
                 {
                     retryCount++;
-                    
+
                     _logger.LogWarning(
                         "Conflito de concorrência (tentativa {RetryCount}/{MaxRetries}): BidId={BidId}, AuctionId={AuctionId}",
                         retryCount, maxRetries, request.BidId, request.AuctionId);

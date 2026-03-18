@@ -20,7 +20,7 @@ public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
     private readonly ILogger<CancelAuctionCommandHandler> _logger = logger;
 
     public async Task<Result> HandleAsync(
-        CancelAuctionCommand command, 
+        CancelAuctionCommand command,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
@@ -34,8 +34,8 @@ public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
         if (auction is null)
         {
             _logger.LogWarning("Auction {AuctionId} not found", command.AuctionId);
-            return Result.Failure(new Error(
-                "Auction.NotFound", 
+            return Result.Failure(Error.NotFound(
+                "Auction.NotFound",
                 $"Leilão com ID {command.AuctionId} não foi encontrado"));
         }
 

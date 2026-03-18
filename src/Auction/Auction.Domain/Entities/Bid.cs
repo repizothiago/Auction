@@ -15,7 +15,7 @@ public class Bid : BaseEntity
         Guid bidderId,
         Money amount,
         bool isAutoBid = false,
-        Guid? bidId = null) 
+        Guid? bidId = null)
         : base(bidId ?? Guid.NewGuid(), DateTime.UtcNow, null)
     {
         AuctionId = auctionId;
@@ -108,7 +108,7 @@ public class Bid : BaseEntity
 
         BidStatus = BidStatus.Cancelled;
         RaiseDomainEvent(new BidCancelledEvent(Id, AuctionId, BidderId));
-        
+
         return Result.Success();
     }
 
@@ -119,7 +119,7 @@ public class Bid : BaseEntity
 
         BidStatus = BidStatus.Outbid;
         RaiseDomainEvent(new BidOutbidEvent(Id, AuctionId, BidderId, Amount.Value));
-        
+
         return Result.Success();
     }
 
@@ -129,7 +129,7 @@ public class Bid : BaseEntity
             return Result.Failure(new Error("Bid.NotActive", "Lance não está ativo"));
 
         BidStatus = BidStatus.Won;
-        
+
         return Result.Success();
     }
 }

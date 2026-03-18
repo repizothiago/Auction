@@ -1,6 +1,5 @@
 using Auction.Application.Interfaces.Repositories;
 using Auction.Domain.Entities;
-using Auction.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Auction.Infrastructure.Persistence.Repositories;
@@ -22,9 +21,9 @@ public class BidRepository : IBidRepository
     }
 
     public async Task<List<Bid>> GetByAuctionIdAsync(
-        Guid auctionId, 
-        int pageNumber, 
-        int pageSize, 
+        Guid auctionId,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         return await _context.Bids
@@ -37,9 +36,9 @@ public class BidRepository : IBidRepository
     }
 
     public async Task<List<Bid>> GetByBidderIdAsync(
-        Guid bidderId, 
-        int pageNumber, 
-        int pageSize, 
+        Guid bidderId,
+        int pageNumber,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         return await _context.Bids
@@ -52,7 +51,7 @@ public class BidRepository : IBidRepository
     }
 
     public async Task<Bid?> GetHighestBidForAuctionAsync(
-        Guid auctionId, 
+        Guid auctionId,
         CancellationToken cancellationToken = default)
     {
         return await _context.Bids
@@ -63,8 +62,8 @@ public class BidRepository : IBidRepository
     }
 
     public async Task<int> GetBidCountForUserInAuctionAsync(
-        Guid auctionId, 
-        Guid bidderId, 
+        Guid auctionId,
+        Guid bidderId,
         CancellationToken cancellationToken = default)
     {
         return await _context.Bids

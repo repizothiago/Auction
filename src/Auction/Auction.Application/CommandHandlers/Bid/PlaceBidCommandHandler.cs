@@ -43,7 +43,7 @@ public class PlaceBidCommandHandler
             // 1. Buscar leilão (apenas para validações rápidas)
             var auction = await _auctionRepository.GetByIdAsync(request.AuctionId, cancellationToken);
             if (auction is null)
-                return Result<Guid>.Failure(new Error("Bid.AuctionNotFound", "Leilão não encontrado"));
+                return Result<Guid>.Failure(Error.NotFound("Bid.AuctionNotFound", "Leilão não encontrado"));
 
             // 2. Validações básicas (rápidas)
             var validationResult = await ValidateBidRules(auction, request.BidderId, request.Bid.Value, cancellationToken);
@@ -84,7 +84,7 @@ public class PlaceBidCommandHandler
                 request.AuctionId, request.BidderId);
 
             return Result<Guid>.Failure(
-                new Error("Bid.ValidationError", "Erro ao validar lance. Tente novamente."));
+                Error.Failure("Bid.ValidationError", "Erro ao validar lance. Tente novamente."));
         }
     }
 
@@ -97,12 +97,12 @@ public class PlaceBidCommandHandler
         // 1. Validar status do leilão
         if (auction.Status != Domain.Enum.AuctionStatus.Active)
             return Result.Failure(
-                new Error("Bid.AuctionNotActive", "Leilão não está ativo"));
+                Error.Failure("Bid.AuctionNotActive", "Leilão não está ativo"));
 
         // 2. Validar se vendedor está tentando dar lance
         if (bidderId == auction.SellerId)
             return Result.Failure(
-                new Error("Bid.SellerCannotBid", "Vendedor não pode dar lances no próprio leilão"));
+                Error.Forbidden("Bid.SellerCannotBid", "Vendedor não pode dar lances no próprio leilão"));
 
         // 3. Validar valor mínimo
         var amountResult = Money.Create(amount, "BRL");
@@ -112,7 +112,7 @@ public class PlaceBidCommandHandler
         var minimumBid = auction.CurrentPrice.Add(auction.BidIncrement);
         if (!amountResult.Value.IsGreaterThanOrEqual(minimumBid).Value)
             return Result.Failure(
-                new Error("Bid.BidTooLow",
+                Error.Validation("Bid.BidTooLow",
                     $"Lance deve ser no mínimo {minimumBid.Value} {minimumBid.Currency}"));
 
         // 4. Validar número máximo de lances por usuário
@@ -125,7 +125,7 @@ public class PlaceBidCommandHandler
 
             if (userBidCount >= auction.Rules.MaxBidsPerUser)
                 return Result.Failure(
-                    new Error("Bid.MaxBidsExceeded",
+                    Error.Validation("Bid.MaxBidsExceeded",
                         $"Você atingiu o limite de {auction.Rules.MaxBidsPerUser} lances neste leilão"));
         }
 

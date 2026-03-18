@@ -1,7 +1,5 @@
 using Auction.Domain.Entities;
 using Auction.Domain.Entities.Base;
-using Auction.Infrastructure.Persistence.Seeders;
-using Auction.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

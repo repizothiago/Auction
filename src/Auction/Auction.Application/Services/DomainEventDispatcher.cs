@@ -31,7 +31,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         var handlers = _serviceProvider.GetServices(handlerType);
 
         var handlersList = handlers.ToList();
-        
+
         if (!handlersList.Any())
         {
             _logger.LogWarning("No handlers found for domain event: {EventType}", eventType.Name);
@@ -47,7 +47,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
                 {
                     var task = (Task)handleMethod.Invoke(handler, new object[] { domainEvent, cancellationToken })!;
                     await task;
-                    
+
                     _logger.LogInformation(
                         "Domain event {EventType} handled by {HandlerType}",
                         eventType.Name,
@@ -56,9 +56,9 @@ public class DomainEventDispatcher : IDomainEventDispatcher
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, 
-                    "Error handling domain event {EventType} with handler {HandlerType}", 
-                    eventType.Name, 
+                _logger.LogError(ex,
+                    "Error handling domain event {EventType} with handler {HandlerType}",
+                    eventType.Name,
                     handler.GetType().Name);
                 throw;
             }

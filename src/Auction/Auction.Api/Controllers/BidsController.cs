@@ -1,8 +1,9 @@
+using Auction.Api.Extensions;
 using Auction.Api.Models.Requests;
-using Auction.Api.Models.Responses;
 using Auction.Application.CommandHandlers.Bid;
 using Auction.Application.Commands.Bid;
-using Auction.Application.Interfaces.Repositories;
+using Auction.Application.DTOs;
+using Auction.Application.Queries.Bid;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -17,16 +18,22 @@ namespace Auction.Api.Controllers;
 public class BidsController : ControllerBase
 {
     private readonly PlaceBidCommandHandler _placeBidHandler;
-    private readonly IBidRepository _bidRepository;
+    private readonly GetBidByIdQueryHandler _getBidByIdHandler;
+    private readonly GetBidsByAuctionQueryHandler _getBidsByAuctionHandler;
+    private readonly GetHighestBidQueryHandler _getHighestBidHandler;
     private readonly ILogger<BidsController> _logger;
 
     public BidsController(
         PlaceBidCommandHandler placeBidHandler,
-        IBidRepository bidRepository,
+        GetBidByIdQueryHandler getBidByIdHandler,
+        GetBidsByAuctionQueryHandler getBidsByAuctionHandler,
+        GetHighestBidQueryHandler getHighestBidHandler,
         ILogger<BidsController> logger)
     {
         _placeBidHandler = placeBidHandler;
-        _bidRepository = bidRepository;
+        _getBidByIdHandler = getBidByIdHandler;
+        _getBidsByAuctionHandler = getBidsByAuctionHandler;
+        _getHighestBidHandler = getHighestBidHandler;
         _logger = logger;
     }
 
@@ -37,15 +44,15 @@ public class BidsController : ControllerBase
     /// <param name="request">Dados do lance</param>
     /// <param name="cancellationToken">Token de cancelamento</param>
     /// <returns>ID do lance criado</returns>
-    /// <response code="201">Lance criado com sucesso</response>
+    /// <response code="202">Lance aceito para processamento assíncrono</response>
     /// <response code="400">Dados inválidos ou regras de negócio violadas</response>
     /// <response code="404">Leilão não encontrado</response>
-    /// <response code="409">Conflito de concorrência (outro lance foi registrado)</response>
+    /// <response code="422">Validação falhou</response>
     [HttpPost]
-    [ProducesResponseType(typeof(BidResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> PlaceBid(
         [FromRoute] Guid auctionId,
         [FromBody] PlaceBidRequest request,
@@ -65,55 +72,24 @@ public class BidsController : ControllerBase
 
         if (!result.IsSuccess)
         {
-            return result.Error.Code switch
+            var problemDetails = result.ToProblemDetails();
+            return problemDetails.Status switch
             {
-                "Bid.AuctionNotFound" => NotFound(new ProblemDetails
-                {
-                    Title = "Leilão não encontrado",
-                    Detail = result.Error.Message,
-                    Status = StatusCodes.Status404NotFound
-                }),
-                "Bid.ConcurrencyConflict" => Conflict(new ProblemDetails
-                {
-                    Title = "Conflito de concorrência",
-                    Detail = result.Error.Message,
-                    Status = StatusCodes.Status409Conflict
-                }),
-                _ => BadRequest(new ProblemDetails
-                {
-                    Title = "Erro ao processar lance",
-                    Detail = result.Error.Message,
-                    Status = StatusCodes.Status400BadRequest
-                })
+                StatusCodes.Status404NotFound => NotFound(problemDetails),
+                StatusCodes.Status422UnprocessableEntity => UnprocessableEntity(problemDetails),
+                _ => BadRequest(problemDetails)
             };
         }
 
-        // Buscar bid criado para retornar na resposta
-        var bid = await _bidRepository.GetByIdAsync(result.Value, cancellationToken);
-        if (bid is null)
-        {
-            return StatusCode(500, new ProblemDetails
-            {
-                Title = "Erro interno",
-                Detail = "Lance criado mas não foi possível recuperar os dados",
-                Status = StatusCodes.Status500InternalServerError
-            });
-        }
-
-        var response = new BidResponse(
-            bid.Id,
-            bid.AuctionId,
-            bid.BidderId,
-            bid.Amount.Value,
-            bid.Amount.Currency,
-            bid.IsAutoBid,
-            bid.BidStatus.ToString(),
-            bid.BidTime);
-
-        return CreatedAtAction(
+        return AcceptedAtAction(
             nameof(GetBidById),
-            new { auctionId = bid.AuctionId, bidId = bid.Id },
-            response);
+            new { auctionId, bidId = result.Value },
+            new
+            {
+                bidId = result.Value,
+                message = "Lance aceito e será processado em breve",
+                statusUrl = Url.Action(nameof(GetBidById), new { auctionId, bidId = result.Value })
+            });
     }
 
     /// <summary>
@@ -126,30 +102,17 @@ public class BidsController : ControllerBase
     /// <returns>Lista paginada de lances</returns>
     /// <response code="200">Lista de lances retornada com sucesso</response>
     [HttpGet]
-    [ProducesResponseType(typeof(List<BidResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<BidDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBidsByAuction(
         [FromRoute] Guid auctionId,
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        var bids = await _bidRepository.GetByAuctionIdAsync(
-            auctionId, 
-            pageNumber, 
-            pageSize, 
-            cancellationToken);
+        var query = new GetBidsByAuctionQuery(auctionId, pageNumber, pageSize);
+        var bids = await _getBidsByAuctionHandler.HandleAsync(query, cancellationToken);
 
-        var response = bids.Select(bid => new BidResponse(
-            bid.Id,
-            bid.AuctionId,
-            bid.BidderId,
-            bid.Amount.Value,
-            bid.Amount.Currency,
-            bid.IsAutoBid,
-            bid.BidStatus.ToString(),
-            bid.BidTime)).ToList();
-
-        return Ok(response);
+        return Ok(bids);
     }
 
     /// <summary>
@@ -162,36 +125,34 @@ public class BidsController : ControllerBase
     /// <response code="200">Lance encontrado</response>
     /// <response code="404">Lance não encontrado</response>
     [HttpGet("{bidId:guid}", Name = nameof(GetBidById))]
-    [ProducesResponseType(typeof(BidResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BidDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetBidById(
         [FromRoute] Guid auctionId,
         [FromRoute] Guid bidId,
         CancellationToken cancellationToken = default)
     {
-        var bid = await _bidRepository.GetByIdAsync(bidId, cancellationToken);
+        var query = new GetBidByIdQuery(bidId);
+        var result = await _getBidByIdHandler.HandleAsync(query, cancellationToken);
 
-        if (bid is null || bid.AuctionId != auctionId)
+        if (!result.IsSuccess)
+        {
+            var problemDetails = result.ToProblemDetails();
+            return NotFound(problemDetails);
+        }
+
+        // Validar se o bid pertence ao leilão correto
+        if (result.Value.AuctionId != auctionId)
         {
             return NotFound(new ProblemDetails
             {
-                Title = "Lance não encontrado",
-                Detail = $"Lance {bidId} não encontrado no leilão {auctionId}",
+                Title = "Bid.NotInAuction",
+                Detail = $"Lance {bidId} não pertence ao leilão {auctionId}",
                 Status = StatusCodes.Status404NotFound
             });
         }
 
-        var response = new BidResponse(
-            bid.Id,
-            bid.AuctionId,
-            bid.BidderId,
-            bid.Amount.Value,
-            bid.Amount.Currency,
-            bid.IsAutoBid,
-            bid.BidStatus.ToString(),
-            bid.BidTime);
-
-        return Ok(response);
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -203,35 +164,22 @@ public class BidsController : ControllerBase
     /// <response code="200">Lance vencedor encontrado</response>
     /// <response code="404">Nenhum lance encontrado</response>
     [HttpGet("highest")]
-    [ProducesResponseType(typeof(BidResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BidDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetHighestBid(
         [FromRoute] Guid auctionId,
         CancellationToken cancellationToken = default)
     {
-        var bid = await _bidRepository.GetHighestBidForAuctionAsync(auctionId, cancellationToken);
+        var query = new GetHighestBidQuery(auctionId);
+        var result = await _getHighestBidHandler.HandleAsync(query, cancellationToken);
 
-        if (bid is null)
+        if (!result.IsSuccess)
         {
-            return NotFound(new ProblemDetails
-            {
-                Title = "Nenhum lance encontrado",
-                Detail = $"Nenhum lance ativo encontrado para o leilão {auctionId}",
-                Status = StatusCodes.Status404NotFound
-            });
+            var problemDetails = result.ToProblemDetails();
+            return NotFound(problemDetails);
         }
 
-        var response = new BidResponse(
-            bid.Id,
-            bid.AuctionId,
-            bid.BidderId,
-            bid.Amount.Value,
-            bid.Amount.Currency,
-            bid.IsAutoBid,
-            bid.BidStatus.ToString(),
-            bid.BidTime);
-
-        return Ok(response);
+        return Ok(result.Value);
     }
 
     private Guid? GetCurrentUserId()

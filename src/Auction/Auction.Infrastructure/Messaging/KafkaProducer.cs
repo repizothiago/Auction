@@ -1,10 +1,10 @@
-using System.Text.Json;
 using Auction.Application.Interfaces;
 using Auction.Infrastructure.Options;
 using Auction.SharedKernel;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Auction.Infrastructure.Messaging;
 
@@ -82,7 +82,7 @@ public class KafkaProducer : IMessageBus, IDisposable
         }
         catch (ProduceException<string, string> ex)
         {
-            _logger.LogError(ex, 
+            _logger.LogError(ex,
                 "Failed to publish event to Kafka: Topic={Topic}, Key={Key}, Error={ErrorCode}",
                 topic, partitionKey, ex.Error.Code);
             throw;
@@ -102,7 +102,7 @@ public class KafkaProducer : IMessageBus, IDisposable
     {
         var tasks = events.Select(e => PublishAsync(topic, e, partitionKeySelector(e), cancellationToken));
         await Task.WhenAll(tasks);
-        
+
         _logger.LogInformation("Batch of {Count} events published to topic {Topic}", events.Count(), topic);
     }
 
