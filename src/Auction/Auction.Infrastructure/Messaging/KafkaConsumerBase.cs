@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Auction.Infrastructure.Options;
 using Auction.SharedKernel;
 using Confluent.Kafka;
@@ -6,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Auction.Infrastructure.Messaging;
 
@@ -65,7 +65,7 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _consumer.Subscribe(_topic);
-        
+
         Logger.LogInformation("Kafka Consumer started for topic: {Topic}", _topic);
 
         while (!stoppingToken.IsCancellationRequested)
@@ -78,13 +78,13 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
                     continue;
 
                 var @event = JsonSerializer.Deserialize<TEvent>(
-                    consumeResult.Message.Value, 
+                    consumeResult.Message.Value,
                     _jsonOptions);
 
                 if (@event is not null)
                 {
                     using var scope = ServiceProvider.CreateScope();
-                    
+
                     await ProcessEventAsync(@event, scope.ServiceProvider, stoppingToken);
 
                     // Commit offset apenas após processamento bem-sucedido
@@ -117,8 +117,8 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
     /// Método abstrato para processar o evento. Implementado pelas subclasses.
     /// </summary>
     protected abstract Task ProcessEventAsync(
-        TEvent @event, 
-        IServiceProvider serviceProvider, 
+        TEvent @event,
+        IServiceProvider serviceProvider,
         CancellationToken cancellationToken);
 
     public override void Dispose()

@@ -109,6 +109,64 @@ namespace Auction.Infrastructure.Migrations
                     b.ToTable("auctions", (string)null);
                 });
 
+            modelBuilder.Entity("Auction.Domain.Entities.Bid", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AuctionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("auction_id");
+
+                    b.Property<int>("BidStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("bid_status");
+
+                    b.Property<DateTime>("BidTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("bid_time");
+
+                    b.Property<Guid>("BidderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("bidder_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsAutoBid")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_auto_bid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bigint")
+                        .HasColumnName("version");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuctionId")
+                        .HasDatabaseName("ix_bids_auction_id");
+
+                    b.HasIndex("BidTime")
+                        .HasDatabaseName("ix_bids_bid_time");
+
+                    b.HasIndex("BidderId")
+                        .HasDatabaseName("ix_bids_bidder_id");
+
+                    b.HasIndex("AuctionId", "BidStatus")
+                        .HasDatabaseName("ix_bids_auction_status");
+
+                    b.ToTable("bids", (string)null);
+                });
+
             modelBuilder.Entity("Auction.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -150,56 +208,56 @@ namespace Auction.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1563318e-7548-4620-a936-9d0ed752f2bc"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 871, DateTimeKind.Utc).AddTicks(9170),
+                            Id = new Guid("62fb8846-ac7d-481f-8b91-e19941180753"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(1586),
                             Description = "Dispositivos eletrônicos e gadgets",
                             Name = "Eletrônicos",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("28477285-2e12-43a6-8270-de0bf9519d20"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3437),
+                            Id = new Guid("448fb831-8414-4181-81dd-318b5a569194"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(4376),
                             Description = "Carros, motos e outros veículos",
                             Name = "Veículos",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("7f7fa068-16c8-43e0-b2c5-20e50311d474"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3446),
+                            Id = new Guid("c9d47c38-d3ea-423d-a089-5ba55e14055e"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(4380),
                             Description = "Casas, apartamentos e terrenos",
                             Name = "Imóveis",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("984bc72b-4c10-4826-8024-6c478f0c3c60"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3448),
+                            Id = new Guid("09ede924-5eac-4ccc-88ef-bedd335ece17"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(4381),
                             Description = "Obras de arte e colecionáveis",
                             Name = "Arte",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("71b730fb-7549-4cb2-bdb2-091b0e7652bd"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3450),
+                            Id = new Guid("ddebd330-f35b-4e8f-b820-e110168be0bf"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(4382),
                             Description = "Joias e pedras preciosas",
                             Name = "Joias",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("2a0e3fab-1ef8-4b95-8e4a-c10277e159e7"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3452),
+                            Id = new Guid("0ec67cca-1ece-4e11-bd70-5b335774345e"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(4383),
                             Description = "Itens antigos e vintage",
                             Name = "Antiguidades",
                             Version = 0L
                         },
                         new
                         {
-                            Id = new Guid("75bbd8cf-c16c-4428-a9ca-e39b732b5a84"),
-                            CreatedAt = new DateTime(2026, 3, 4, 1, 16, 58, 872, DateTimeKind.Utc).AddTicks(3453),
+                            Id = new Guid("71b9be8f-278e-4a86-a945-61e71edd134e"),
+                            CreatedAt = new DateTime(2026, 3, 9, 22, 52, 56, 798, DateTimeKind.Utc).AddTicks(4384),
                             Description = "Outras categorias",
                             Name = "Outros",
                             Version = 0L
@@ -432,6 +490,47 @@ namespace Auction.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("StartingPrice")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Auction.Domain.Entities.Bid", b =>
+                {
+                    b.HasOne("Auction.Domain.Entities.Auction", null)
+                        .WithMany()
+                        .HasForeignKey("AuctionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Auction.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("BidderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Auction.Domain.ValueObjects.Money", "Amount", b1 =>
+                        {
+                            b1.Property<Guid>("BidId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("currency");
+
+                            b1.Property<decimal>("Value")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("amount");
+
+                            b1.HasKey("BidId");
+
+                            b1.ToTable("bids");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BidId");
+                        });
+
+                    b.Navigation("Amount")
                         .IsRequired();
                 });
 

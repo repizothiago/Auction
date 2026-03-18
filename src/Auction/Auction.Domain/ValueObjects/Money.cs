@@ -19,18 +19,26 @@ public sealed record Money
     public Result<bool> IsGreaterThanOrEqual(Money other)
     {
         if (IsDistinctCurrency(other))
-            return Result<bool>.Failure(new Error("Money.DistinctCurrency", "Cannot compare amounts with different currencies."));
+            return Result<bool>.Failure(Error.Failure("Money.DistinctCurrency", "Cannot compare amounts with different currencies."));
 
         return Result<bool>.Success(Value >= other.Value);
+    }
+
+    public Money Add(Money other)
+    {
+        if (IsDistinctCurrency(other))
+            throw new InvalidOperationException("Cannot add amounts with different currencies.");
+
+        return new Money(Value + other.Value, Currency);
     }
 
 
     public static Result<Money> Create(decimal value, string currency)
     {
         if (value < 0)
-            return Result<Money>.Failure(new Error("Money.InvalidValue", "O valor do dinheiro não pode ser negativo."));
+            return Result<Money>.Failure(Error.Validation("Money.InvalidValue", "O valor do dinheiro não pode ser negativo."));
         if (string.IsNullOrWhiteSpace(currency))
-            return Result<Money>.Failure(new Error("Money.InvalidCurrency", "A moeda é obrigatória."));
+            return Result<Money>.Failure(Error.Validation("Money.InvalidCurrency", "A moeda é obrigatória."));
         return Result<Money>.Success(new Money(value, currency));
     }
 }

@@ -21,7 +21,7 @@ public class UserRepository : IUserRepository
     public async Task<Domain.Entities.User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var normalizedEmail = email.Trim().ToLower();
-        
+
         return await _context.Users
             .FirstOrDefaultAsync(u => u.Email.Value == normalizedEmail, cancellationToken);
     }
@@ -29,7 +29,7 @@ public class UserRepository : IUserRepository
     public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         var normalizedEmail = email.Trim().ToLower();
-        
+
         return await _context.Users
             .AnyAsync(u => u.Email.Value == normalizedEmail, cancellationToken);
     }

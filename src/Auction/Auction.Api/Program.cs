@@ -2,29 +2,31 @@ using Auction.Api.Extensions;
 using Auction.Application;
 using Auction.Infrastructure;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddApiExtensions();
-
-// Adicionar camadas da aplicação
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddInfrastructureHealthChecks(builder.Configuration);
-builder.Services.AddKafkaConsumers();
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseDevelopmentMiddleware();
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services.AddApiServices();
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(builder.Configuration);
+    builder.Services.AddInfrastructureHealthChecks(builder.Configuration);
+    builder.Services.AddKafkaConsumers();
+
+    var app = builder.Build();
+
+    await app.SeedDatabaseAsync();
+
+    app.UseApiPipeline();
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-
-app.MapHealthChecks("/health");
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"Fatal error during application startup: {ex.Message}");
+    Console.Error.WriteLine(ex.StackTrace);
+    throw;
+}
+finally
+{
+    Console.WriteLine("Application shutdown complete.");
+}

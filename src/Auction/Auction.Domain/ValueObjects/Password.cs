@@ -1,7 +1,7 @@
-using System.Security.Cryptography;
-using System.Text;
 using Auction.SharedKernel;
 using Auction.SharedKernel.Errors;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Auction.Domain.ValueObjects;
 

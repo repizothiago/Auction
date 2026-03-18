@@ -107,6 +107,7 @@ public static class DependencyInjection
 
         // Repositories
         services.AddScoped<IAuctionRepository, AuctionRepository>();
+        services.AddScoped<IBidRepository, BidRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
 
@@ -123,6 +124,7 @@ public static class DependencyInjection
     {
         // Registrar consumers como Hosted Services (BackgroundService)
         services.AddHostedService<AuctionCancelledEventConsumer>();
+        services.AddHostedService<BidPlacementRequestedConsumer>();
 
         // Adicionar outros consumers aqui conforme necessário
         // services.AddHostedService<AuctionCreatedEventConsumer>();

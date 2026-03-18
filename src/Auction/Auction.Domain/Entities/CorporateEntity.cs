@@ -36,7 +36,7 @@ public class CorporateEntity : User
             return Result<CorporateEntity>.Failure(new Error("CorporateUser.InvalidCompanyName", "Razão social é obrigatória."));
 
         var user = new CorporateEntity(emailResult.Value, cnpjResult.Value, passwordResult.Value, companyName);
-        
+
         user.RaiseDomainEvent(new UserRegisteredEvent(user.Id, user.Email.Value, user.Cnpj.Value));
 
         return Result<CorporateEntity>.Success(user);

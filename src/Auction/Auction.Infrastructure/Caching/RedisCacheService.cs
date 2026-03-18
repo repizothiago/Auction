@@ -1,7 +1,7 @@
-using System.Text.Json;
 using Auction.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
+using System.Text.Json;
 
 namespace Auction.Infrastructure.Caching;
 
@@ -17,7 +17,7 @@ public class RedisCacheService : ICacheService
     {
         _redis = redis;
         _logger = logger;
-        
+
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
@@ -54,9 +54,9 @@ public class RedisCacheService : ICacheService
         {
             var db = _redis.GetDatabase();
             var serialized = JsonSerializer.Serialize(value, _jsonOptions);
-            
+
             await db.StringSetAsync(key, serialized, expiry);
-            
+
             _logger.LogDebug("Cache set for key: {Key}, expiry: {Expiry}", key, expiry);
         }
         catch (Exception ex)
@@ -71,7 +71,7 @@ public class RedisCacheService : ICacheService
         {
             var db = _redis.GetDatabase();
             await db.KeyDeleteAsync(key);
-            
+
             _logger.LogDebug("Cache removed for key: {Key}", key);
         }
         catch (Exception ex)
@@ -86,9 +86,9 @@ public class RedisCacheService : ICacheService
         {
             var db = _redis.GetDatabase();
             var value = await db.StringIncrementAsync(key);
-            
+
             _logger.LogDebug("Cache incremented for key: {Key}, new value: {Value}", key, value);
-            
+
             return value;
         }
         catch (Exception ex)
@@ -104,15 +104,15 @@ public class RedisCacheService : ICacheService
         {
             var db = _redis.GetDatabase();
             var lockValue = Guid.NewGuid().ToString();
-            
+
             // SET key value NX PX milliseconds
             var acquired = await db.StringSetAsync(key, lockValue, expiry, When.NotExists);
-            
+
             if (acquired)
                 _logger.LogDebug("Lock acquired for key: {Key}", key);
             else
                 _logger.LogDebug("Failed to acquire lock for key: {Key}", key);
-            
+
             return acquired;
         }
         catch (Exception ex)
@@ -128,7 +128,7 @@ public class RedisCacheService : ICacheService
         {
             var db = _redis.GetDatabase();
             await db.KeyDeleteAsync(key);
-            
+
             _logger.LogDebug("Lock released for key: {Key}", key);
         }
         catch (Exception ex)
@@ -177,7 +177,7 @@ public class RedisCacheService : ICacheService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in GetOrSetAsync for key: {Key}", key);
-            
+
             // Em caso de erro de cache, tentar executar factory diretamente
             return await factory();
         }
@@ -191,18 +191,18 @@ public static class CacheKeys
 {
     // Auction cache keys
     public static string Auction(Guid auctionId) => $"auction:{auctionId}";
-    public static string ActiveAuctions(int page, int pageSize, Guid? categoryId) => 
+    public static string ActiveAuctions(int page, int pageSize, Guid? categoryId) =>
         $"auctions:active:page:{page}:size:{pageSize}:category:{categoryId}";
     public static string AuctionSequence(Guid auctionId) => $"auction:{auctionId}:sequence";
-    
+
     // User cache keys
     public static string User(Guid userId) => $"user:{userId}";
     public static string UserByEmail(string email) => $"user:email:{email.ToLower()}";
-    
+
     // Category cache keys
     public static string Category(Guid categoryId) => $"category:{categoryId}";
     public static string AllCategories => "categories:all";
-    
+
     // Lock keys (Distributed Locks)
     public static string AuctionLock(Guid auctionId) => $"lock:auction:{auctionId}";
     public static string BidProcessingLock(Guid bidId) => $"lock:bid:{bidId}";

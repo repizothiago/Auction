@@ -6,6 +6,6 @@ namespace Auction.Application.Interfaces;
 public interface IUnitOfWork
 {
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-    
+
     Task<bool> SaveChangesAndReturnStatusAsync(CancellationToken cancellationToken = default);
 }

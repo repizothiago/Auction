@@ -9,6 +9,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="appsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="appsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
 		  <PrivateAssets>all</PrivateAssets>
@@ -18,12 +26,16 @@
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.4" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.4" />
-		<PackageReference Include="Scalar.AspNetCore" Version="1.2.49" />
+		<PackageReference Include="Scalar.AspNetCore" Version="2.13.1" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Auction.Application\Auction.Application.csproj" />
 		<ProjectReference Include="..\Auction.Infrastructure\Auction.Infrastructure.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Validators\" />
 	</ItemGroup>
 
 </Project>
