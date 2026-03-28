@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text;
 using System.Text.Json;
 
 namespace Auction.Infrastructure.Messaging;
@@ -48,7 +49,7 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
         _consumer = new ConsumerBuilder<string, string>(config)
             .SetErrorHandler((_, error) =>
             {
-                logger.LogError("Kafka Consumer Error: {Reason}", error.Reason);
+                logger.LogError("[Mensageria] Erro no consumer Kafka: {Motivo}", error.Reason);
             })
             .Build();
 
@@ -66,7 +67,7 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
     {
         _consumer.Subscribe(_topic);
 
-        Logger.LogInformation("Kafka Consumer started for topic: {Topic}", _topic);
+        Logger.LogInformation("[Mensageria] Consumer Kafka iniciado: Topico={Topico}", _topic);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -83,34 +84,42 @@ public abstract class KafkaConsumerBase<TEvent> : BackgroundService where TEvent
 
                 if (@event is not null)
                 {
+                    var correlationId = consumeResult.Message.Headers
+                        .TryGetLastBytes("correlation-id", out var headerBytes)
+                            ? Encoding.UTF8.GetString(headerBytes)
+                            : Guid.NewGuid().ToString();
+
+                    CorrelationContext.Current = correlationId;
+
                     using var scope = ServiceProvider.CreateScope();
+                    using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId))
+                    {
+                        await ProcessEventAsync(@event, scope.ServiceProvider, stoppingToken);
 
-                    await ProcessEventAsync(@event, scope.ServiceProvider, stoppingToken);
+                        _consumer.Commit(consumeResult);
 
-                    // Commit offset apenas após processamento bem-sucedido
-                    _consumer.Commit(consumeResult);
-
-                    Logger.LogInformation(
-                        "Event {EventType} processed: Partition={Partition}, Offset={Offset}, Key={Key}",
-                        typeof(TEvent).Name,
-                        consumeResult.Partition.Value,
-                        consumeResult.Offset.Value,
-                        consumeResult.Message.Key);
+                        Logger.LogInformation(
+                            "[Mensageria] Evento processado com sucesso: TipoEvento={TipoEvento}, Particao={Particao}, Offset={Offset}, Chave={Chave}",
+                            typeof(TEvent).Name,
+                            consumeResult.Partition.Value,
+                            consumeResult.Offset.Value,
+                            consumeResult.Message.Key);
+                    }
                 }
             }
             catch (ConsumeException ex)
             {
-                Logger.LogError(ex, "Error consuming message from Kafka topic: {Topic}", _topic);
+                Logger.LogError(ex, "[Mensageria] Erro ao consumir mensagem do Kafka: Topico={Topico}", _topic);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Error processing event from topic: {Topic}", _topic);
+                Logger.LogError(ex, "[Mensageria] Erro ao processar evento do tópico: Topico={Topico}", _topic);
                 // TODO: Implementar Dead Letter Queue (DLQ) aqui se necessário
             }
         }
 
         _consumer.Close();
-        Logger.LogInformation("Kafka Consumer stopped for topic: {Topic}", _topic);
+        Logger.LogInformation("[Mensageria] Consumer Kafka encerrado: Topico={Topico}", _topic);
     }
 
     /// <summary>

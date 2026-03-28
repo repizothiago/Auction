@@ -37,7 +37,7 @@ public class PlaceBidCommandHandler
         try
         {
             _logger.LogInformation(
-                "Validando lance: AuctionId={AuctionId}, BidderId={BidderId}, Amount={Amount}",
+                "[Comando] Validando lance: AuctionId={AuctionId}, LicitanteId={LicitanteId}, Valor={Valor}",
                 request.AuctionId, request.BidderId, request.Bid.Value);
 
             // 1. Buscar leilão (apenas para validações rápidas)
@@ -71,7 +71,7 @@ public class PlaceBidCommandHandler
                 cancellationToken);
 
             _logger.LogInformation(
-                "Lance enviado para processamento assíncrono: BidId={BidId}, AuctionId={AuctionId}",
+                "[Comando] Lance enviado para processamento assíncrono: LanceId={LanceId}, AuctionId={AuctionId}",
                 bidId, request.AuctionId);
 
             // Retornar BidId imediatamente (processamento será feito pelo consumer)
@@ -80,7 +80,7 @@ public class PlaceBidCommandHandler
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Erro ao validar lance: AuctionId={AuctionId}, BidderId={BidderId}",
+                "[Comando] Erro ao validar lance: AuctionId={AuctionId}, LicitanteId={LicitanteId}",
                 request.AuctionId, request.BidderId);
 
             return Result<Guid>.Failure(

@@ -23,7 +23,7 @@ public class BidOutbidEventHandler : IDomainEventHandler<BidOutbidEvent>
         try
         {
             _logger.LogInformation(
-                "Processando evento BidOutbid: BidId={BidId}, AuctionId={AuctionId}",
+                "[EventoDominio] Processando BidOutbidEvent: LanceId={LanceId}, AuctionId={AuctionId}",
                 notification.BidId, notification.AuctionId);
 
             // Publicar evento no Kafka para notificar usuário que foi superado
@@ -40,13 +40,13 @@ public class BidOutbidEventHandler : IDomainEventHandler<BidOutbidEvent>
                 cancellationToken);
 
             _logger.LogInformation(
-                "Evento BidOutbid processado com sucesso: BidId={BidId}",
+                "[Mensageria] Evento BidOutbid publicado com sucesso: LanceId={LanceId}",
                 notification.BidId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Erro ao processar evento BidOutbid: BidId={BidId}",
+                "[EventoDominio] Erro ao processar BidOutbidEvent: LanceId={LanceId}",
                 notification.BidId);
         }
     }

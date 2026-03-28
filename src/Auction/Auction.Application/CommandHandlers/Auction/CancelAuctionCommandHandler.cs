@@ -24,7 +24,7 @@ public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
-            "Processing CancelAuctionCommand for AuctionId: {AuctionId}, Reason: {Reason}",
+            "[Comando] Processando cancelamento de leilão: AuctionId={AuctionId}, Motivo={Motivo}",
             command.AuctionId,
             command.Reason);
 
@@ -33,7 +33,7 @@ public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
 
         if (auction is null)
         {
-            _logger.LogWarning("Auction {AuctionId} not found", command.AuctionId);
+            _logger.LogWarning("[Comando] Leilão não encontrado: AuctionId={AuctionId}", command.AuctionId);
             return Result.Failure(Error.NotFound(
                 "Auction.NotFound",
                 $"Leilão com ID {command.AuctionId} não foi encontrado"));
@@ -45,7 +45,7 @@ public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
         if (!cancelResult.IsSuccess)
         {
             _logger.LogWarning(
-                "Failed to cancel auction {AuctionId}: {Error}",
+                "[Comando] Falha ao cancelar leilão: AuctionId={AuctionId}, Erro={Erro}",
                 command.AuctionId,
                 cancelResult.Error?.Message);
             return cancelResult;
@@ -58,7 +58,7 @@ public class CancelAuctionCommandHandler(IAuctionRepository auctionRepository,
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
-            "Auction {AuctionId} cancelled successfully. Reason: {Reason}",
+            "[Comando] Leilão cancelado com sucesso: AuctionId={AuctionId}, Motivo={Motivo}",
             command.AuctionId,
             command.Reason);
 

@@ -26,7 +26,7 @@ public class GetHighestBidQueryHandler
         GetHighestBidQuery query,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Fetching highest bid for auction {AuctionId}", query.AuctionId);
+        _logger.LogInformation("[Consulta] Buscando maior lance do leilão: AuctionId={AuctionId}", query.AuctionId);
 
         var bid = await _bidRepository.GetHighestBidForAuctionAsync(
             query.AuctionId,

@@ -26,7 +26,7 @@ public class GetBidByIdQueryHandler
         GetBidByIdQuery query,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Fetching bid {BidId}", query.BidId);
+        _logger.LogInformation("[Consulta] Buscando lance por ID: LanceId={LanceId}", query.BidId);
 
         var bid = await _bidRepository.GetByIdAsync(query.BidId, cancellationToken);
 

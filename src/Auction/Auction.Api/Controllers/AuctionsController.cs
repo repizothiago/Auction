@@ -70,7 +70,7 @@ public class AuctionsController : ControllerBase
         CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Received request to cancel auction {AuctionId} with reason: {Reason}",
+            "[Leilão] Solicitação de cancelamento recebida: AuctionId={AuctionId}, Motivo={Motivo}",
             id,
             request.Reason);
 

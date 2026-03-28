@@ -24,11 +24,10 @@ public class AuctionCancelledEventConsumer : KafkaConsumerBase<AuctionCancelledE
         CancellationToken cancellationToken)
     {
         Logger.LogInformation(
-            "Processing AuctionCancelledEvent - AuctionId: {AuctionId}, Reason: {Reason}, EventId: {EventId}, OccurredOn: {OccurredOn}",
+            "[Mensageria] Processando evento de cancelamento de leilão: AuctionId={AuctionId}, Motivo={Motivo}, EventId={EventId}",
             @event.AuctionId,
             @event.Reason,
-            @event.EventId,
-            @event.OccurredOn);
+            @event.EventId);
 
         // Buscar o leilão e executar ações necessárias
         using var scope = serviceProvider.CreateScope();
@@ -39,11 +38,9 @@ public class AuctionCancelledEventConsumer : KafkaConsumerBase<AuctionCancelledE
         if (auction is not null)
         {
             Logger.LogInformation(
-                "Auction '{Title}' was cancelled. Status: {Status}",
+                "[Mensageria] Leilão cancelado encontrado: Titulo={Titulo}, Status={Status}",
                 auction.Title,
                 auction.Status);
-
-            Console.WriteLine("Test");
 
             // Aqui você pode:
             // - Enviar notificações para participantes do leilão
@@ -60,7 +57,7 @@ public class AuctionCancelledEventConsumer : KafkaConsumerBase<AuctionCancelledE
         else
         {
             Logger.LogWarning(
-                "Auction {AuctionId} not found when processing cancellation event",
+                "[Mensageria] Leilão não encontrado ao processar evento de cancelamento: AuctionId={AuctionId}",
                 @event.AuctionId);
         }
 

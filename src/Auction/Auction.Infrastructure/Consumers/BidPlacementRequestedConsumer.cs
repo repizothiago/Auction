@@ -2,12 +2,14 @@ using Auction.Application.Interfaces;
 using Auction.Application.Interfaces.Repositories;
 using Auction.Domain.Events.Bid;
 using Auction.Domain.ValueObjects;
+using Auction.Infrastructure.Messaging;
 using Auction.Infrastructure.Options;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text;
 using System.Text.Json;
 
 namespace Auction.Infrastructure.Consumers;
@@ -44,7 +46,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
         };
 
         _consumer = new ConsumerBuilder<string, string>(config)
-            .SetErrorHandler((_, e) => _logger.LogError("Kafka error: {Reason}", e.Reason))
+            .SetErrorHandler((_, e) => _logger.LogError("[Mensageria] Erro no consumer Kafka: {Motivo}", e.Reason))
             .Build();
     }
 
@@ -52,7 +54,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
     {
         _consumer.Subscribe("bid-placement-requested");
 
-        _logger.LogInformation("BidPlacementRequestedConsumer iniciado. Aguardando mensagens...");
+        _logger.LogInformation("[Mensageria] Consumer de solicitação de lance iniciado. Aguardando mensagens...");
 
         try
         {
@@ -64,17 +66,27 @@ public class BidPlacementRequestedConsumer : BackgroundService
 
                     if (consumeResult?.Message?.Value != null)
                     {
-                        await ProcessBidPlacementAsync(consumeResult.Message.Value, stoppingToken);
-                        _consumer.Commit(consumeResult);
+                        var correlationId = consumeResult.Message.Headers
+                            .TryGetLastBytes("correlation-id", out var headerBytes)
+                                ? Encoding.UTF8.GetString(headerBytes)
+                                : Guid.NewGuid().ToString();
+
+                        CorrelationContext.Current = correlationId;
+
+                        using (Serilog.Context.LogContext.PushProperty("CorrelationId", correlationId))
+                        {
+                            await ProcessBidPlacementAsync(consumeResult.Message.Value, stoppingToken);
+                            _consumer.Commit(consumeResult);
+                        }
                     }
                 }
                 catch (ConsumeException ex)
                 {
-                    _logger.LogError(ex, "Erro ao consumir mensagem do Kafka");
+                    _logger.LogError(ex, "[Mensageria] Erro ao consumir mensagem do Kafka: Topico=bid-placement-requested");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Erro ao processar lance");
+                    _logger.LogError(ex, "[Mensageria] Erro ao processar lance");
                 }
             }
         }
@@ -103,12 +115,12 @@ public class BidPlacementRequestedConsumer : BackgroundService
             request = JsonSerializer.Deserialize<BidPlacementRequest>(message);
             if (request is null)
             {
-                _logger.LogWarning("Mensagem inválida recebida: {Message}", message);
+                _logger.LogWarning("[Mensageria] Mensagem inválida ou nula recebida no tópico bid-placement-requested");
                 return;
             }
 
             _logger.LogInformation(
-                "Processando lance assíncrono: BidId={BidId}, AuctionId={AuctionId}, Amount={Amount}",
+                "[Mensageria] Processando lance assíncrono: LanceId={LanceId}, AuctionId={AuctionId}, Valor={Valor}",
                 request.BidId, request.AuctionId, request.Amount);
 
             // 2. Verificar idempotência (se lance já foi processado)
@@ -116,7 +128,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
             if (existingBid is not null)
             {
                 _logger.LogInformation(
-                    "Lance já processado anteriormente (idempotência): BidId={BidId}",
+                    "[Mensageria] Lance ignorado por idempotência (já processado): LanceId={LanceId}",
                     request.BidId);
                 return;
             }
@@ -126,7 +138,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
             if (auction is null)
             {
                 _logger.LogWarning(
-                    "Leilão não encontrado ao processar lance: AuctionId={AuctionId}",
+                    "[Mensageria] Leilão não encontrado ao processar lance: AuctionId={AuctionId}",
                     request.AuctionId);
                 return;
             }
@@ -136,7 +148,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
             if (!amountResult.IsSuccess)
             {
                 _logger.LogWarning(
-                    "Valor inválido ao processar lance: BidId={BidId}, Amount={Amount}",
+                    "[Mensageria] Valor inválido ao processar lance: LanceId={LanceId}, Valor={Valor}",
                     request.BidId, request.Amount);
                 return;
             }
@@ -147,12 +159,12 @@ public class BidPlacementRequestedConsumer : BackgroundService
                 request.BidderId,
                 amountResult.Value,
                 request.IsAutoBid,
-                request.BidId); // Usar BidId gerado no handler
+                request.BidId);
 
             if (!bidResult.IsSuccess)
             {
                 _logger.LogWarning(
-                    "Erro ao criar entidade Bid: BidId={BidId}, Error={Error}",
+                    "[Mensageria] Erro ao criar entidade Bid: LanceId={LanceId}, Erro={Erro}",
                     request.BidId, bidResult.Error.Message);
                 return;
             }
@@ -178,7 +190,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
             if (!registerResult.IsSuccess)
             {
                 _logger.LogWarning(
-                    "Erro ao registrar lance no leilão: BidId={BidId}, Error={Error}",
+                    "[Mensageria] Erro ao registrar lance no leilão: LanceId={LanceId}, Erro={Erro}",
                     request.BidId, registerResult.Error.Message);
                 return;
             }
@@ -203,34 +215,33 @@ public class BidPlacementRequestedConsumer : BackgroundService
                     retryCount++;
 
                     _logger.LogWarning(
-                        "Conflito de concorrência (tentativa {RetryCount}/{MaxRetries}): BidId={BidId}, AuctionId={AuctionId}",
+                        "[Mensageria] Conflito de concorrência ao processar lance (tentativa {Tentativa}/{MaxTentativas}): LanceId={LanceId}, AuctionId={AuctionId}",
                         retryCount, maxRetries, request.BidId, request.AuctionId);
 
                     if (retryCount >= maxRetries)
                     {
                         _logger.LogError(
-                            "Falha ao processar lance após {MaxRetries} tentativas: BidId={BidId}",
+                            "[Mensageria] Falha ao processar lance após {MaxTentativas} tentativas: LanceId={LanceId}",
                             maxRetries, request.BidId);
                         return;
                     }
 
-                    // Aguardar antes de retentar (backoff exponencial)
                     await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retryCount)), cancellationToken);
 
-                    // Recarregar entidades do banco
                     auction = await auctionRepository.GetByIdAsync(request.AuctionId, cancellationToken);
                     if (auction is null)
                     {
-                        _logger.LogError("Leilão não encontrado na retentativa: AuctionId={AuctionId}", request.AuctionId);
+                        _logger.LogError(
+                            "[Mensageria] Leilão não encontrado na retentativa: AuctionId={AuctionId}",
+                            request.AuctionId);
                         return;
                     }
 
-                    // Tentar registrar novamente
                     registerResult = auction.RegisterBid(bid.Id, amountResult.Value, request.BidderId);
                     if (!registerResult.IsSuccess)
                     {
                         _logger.LogWarning(
-                            "Erro ao registrar lance na retentativa: BidId={BidId}, Error={Error}",
+                            "[Mensageria] Erro ao registrar lance na retentativa: LanceId={LanceId}, Erro={Erro}",
                             request.BidId, registerResult.Error.Message);
                         return;
                     }
@@ -245,7 +256,7 @@ public class BidPlacementRequestedConsumer : BackgroundService
             await cacheService.RemoveAsync($"auction:{request.AuctionId}:highest-bid");
 
             _logger.LogInformation(
-                "Cache invalidado para leilão: AuctionId={AuctionId}",
+                "[Mensageria] Cache invalidado para leilão: AuctionId={AuctionId}",
                 request.AuctionId);
 
             // 10. Publicar evento de sucesso (BidPlacedEvent)
@@ -264,13 +275,13 @@ public class BidPlacementRequestedConsumer : BackgroundService
                 cancellationToken);
 
             _logger.LogInformation(
-                "Lance processado com sucesso: BidId={BidId}, AuctionId={AuctionId}, Amount={Amount}",
+                "[Mensageria] Lance processado com sucesso: LanceId={LanceId}, AuctionId={AuctionId}, Valor={Valor}",
                 request.BidId, request.AuctionId, request.Amount);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Erro crítico ao processar lance: BidId={BidId}, AuctionId={AuctionId}",
+                "[Mensageria] Erro crítico ao processar lance: LanceId={LanceId}, AuctionId={AuctionId}",
                 request?.BidId, request?.AuctionId);
         }
     }

@@ -24,7 +24,7 @@ public class AuctionCancelledEventHandler : IDomainEventHandler<AuctionCancelled
     public async Task Handle(AuctionCancelledEvent domainEvent, CancellationToken cancellationToken)
     {
         _logger.LogInformation(
-            "Handling AuctionCancelledEvent for Auction: {AuctionId}, Reason: {Reason}",
+            "[EventoDominio] Processando cancelamento de leilão: AuctionId={AuctionId}, Motivo={Motivo}",
             domainEvent.AuctionId,
             domainEvent.Reason);
 
@@ -38,13 +38,13 @@ public class AuctionCancelledEventHandler : IDomainEventHandler<AuctionCancelled
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation(
-                "Integration event published to Kafka topic 'auction.cancelled' for Auction: {AuctionId}",
+                "[Mensageria] Evento de integração publicado: Topico=auction.cancelled, AuctionId={AuctionId}",
                 domainEvent.AuctionId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Error publishing integration event to Kafka for Auction: {AuctionId}",
+                "[Mensageria] Erro ao publicar evento de integração no Kafka: Topico=auction.cancelled, AuctionId={AuctionId}",
                 domainEvent.AuctionId);
 
             // Re-throw para garantir que a transação seja revertida

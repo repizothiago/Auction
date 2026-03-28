@@ -4,6 +4,7 @@ using Auction.SharedKernel;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text;
 using System.Text.Json;
 
 namespace Auction.Infrastructure.Messaging;
@@ -41,7 +42,7 @@ public class KafkaProducer : IMessageBus, IDisposable
         _producer = new ProducerBuilder<string, string>(config)
             .SetErrorHandler((_, error) =>
             {
-                logger.LogError("Kafka Producer Error: {Reason}", error.Reason);
+                logger.LogError("[Mensageria] Erro no producer Kafka: {Motivo}", error.Reason);
             })
             .Build();
 
@@ -63,33 +64,37 @@ public class KafkaProducer : IMessageBus, IDisposable
         try
         {
             var message = JsonSerializer.Serialize(@event, _jsonOptions);
+            var correlationId = CorrelationContext.GetOrCreate();
 
             var result = await _producer.ProduceAsync(topic, new Message<string, string>
             {
-                Key = partitionKey, // Garante que eventos do mesmo leilão vão para a mesma partição
+                Key = partitionKey,
                 Value = message,
                 Timestamp = Timestamp.Default,
                 Headers = new Headers
                 {
-                    { "event-type", System.Text.Encoding.UTF8.GetBytes(@event.GetType().Name) },
-                    { "timestamp", System.Text.Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString("O")) }
+                    { "event-type", Encoding.UTF8.GetBytes(@event.GetType().Name) },
+                    { "timestamp", Encoding.UTF8.GetBytes(DateTime.UtcNow.ToString("O")) },
+                    { "correlation-id", Encoding.UTF8.GetBytes(correlationId) }
                 }
             }, cancellationToken);
 
             _logger.LogInformation(
-                "Event published to Kafka: Topic={Topic}, Partition={Partition}, Offset={Offset}, Key={Key}",
+                "[Mensageria] Evento publicado no Kafka: Topico={Topico}, Particao={Particao}, Offset={Offset}, Chave={Chave}",
                 result.Topic, result.Partition.Value, result.Offset.Value, partitionKey);
         }
         catch (ProduceException<string, string> ex)
         {
             _logger.LogError(ex,
-                "Failed to publish event to Kafka: Topic={Topic}, Key={Key}, Error={ErrorCode}",
+                "[Mensageria] Falha ao publicar evento no Kafka: Topico={Topico}, Chave={Chave}, CodigoErro={CodigoErro}",
                 topic, partitionKey, ex.Error.Code);
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error publishing event to Kafka: {@Event}", @event);
+            _logger.LogError(ex,
+                "[Mensageria] Erro inesperado ao publicar no Kafka: TipoEvento={TipoEvento}",
+                @event.GetType().Name);
             throw;
         }
     }
@@ -103,12 +108,14 @@ public class KafkaProducer : IMessageBus, IDisposable
         var tasks = events.Select(e => PublishAsync(topic, e, partitionKeySelector(e), cancellationToken));
         await Task.WhenAll(tasks);
 
-        _logger.LogInformation("Batch of {Count} events published to topic {Topic}", events.Count(), topic);
+        _logger.LogInformation(
+            "[Mensageria] Lote de eventos publicado: Total={Total}, Topico={Topico}",
+            events.Count(), topic);
     }
 
     public void Dispose()
     {
-        _logger.LogInformation("Flushing Kafka producer...");
+        _logger.LogInformation("[Mensageria] Liberando recursos do producer Kafka...");
         _producer?.Flush(TimeSpan.FromSeconds(10));
         _producer?.Dispose();
     }

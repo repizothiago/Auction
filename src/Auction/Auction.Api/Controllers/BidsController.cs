@@ -68,11 +68,18 @@ public class BidsController : ControllerBase
             request.Bid,
             request.IdempotencyKey);
 
+        _logger.LogInformation(
+            "[Lance] Solicitação de lance recebida: AuctionId={AuctionId}, LicitanteId={LicitanteId}, Valor={Valor}",
+            auctionId, bidderId, request.Bid.Value);
+
         var result = await _placeBidHandler.HandleAsync(command, cancellationToken);
 
         if (!result.IsSuccess)
         {
             var problemDetails = result.ToProblemDetails();
+            _logger.LogWarning(
+                "[Lance] Lance rejeitado: AuctionId={AuctionId}, Motivo={Motivo}",
+                auctionId, problemDetails.Detail);
             return problemDetails.Status switch
             {
                 StatusCodes.Status404NotFound => NotFound(problemDetails),

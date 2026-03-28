@@ -27,7 +27,7 @@ public class BidPlacedEventHandler : IDomainEventHandler<BidPlacedEvent>
         try
         {
             _logger.LogInformation(
-                "Processando evento BidPlaced: BidId={BidId}, AuctionId={AuctionId}, Amount={Amount}",
+                "[EventoDominio] Processando BidPlacedEvent: LanceId={LanceId}, AuctionId={AuctionId}, Valor={Valor}",
                 notification.BidId, notification.AuctionId, notification.Amount);
 
             // Publicar evento no Kafka para notificações em tempo real (SignalR, email, push)
@@ -46,13 +46,13 @@ public class BidPlacedEventHandler : IDomainEventHandler<BidPlacedEvent>
                 cancellationToken);
 
             _logger.LogInformation(
-                "Evento BidPlaced publicado para notificações: BidId={BidId}",
+                "[Mensageria] Evento BidPlaced publicado para notificações: LanceId={LanceId}",
                 notification.BidId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Erro ao processar evento BidPlaced: BidId={BidId}",
+                "[EventoDominio] Erro ao processar BidPlacedEvent: LanceId={LanceId}",
                 notification.BidId);
 
             // Não propagar exceção para não falhar a transação principal

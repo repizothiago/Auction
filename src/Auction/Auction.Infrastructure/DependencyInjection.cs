@@ -73,9 +73,6 @@ public static class DependencyInjection
             options.EnableSensitiveDataLogging(dbOptions.EnableSensitiveDataLogging);
             options.EnableDetailedErrors(dbOptions.EnableDetailedErrors);
 
-            // Log SQL queries no console (apenas para debug)
-            options.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
-
             // Suprimir warning sobre modelo não-determinístico (causado por HasData com DateTime estático)
             options.ConfigureWarnings(warnings =>
                 warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));

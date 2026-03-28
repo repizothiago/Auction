@@ -1,10 +1,26 @@
 using Auction.Api.Extensions;
 using Auction.Application;
 using Auction.Infrastructure;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateBootstrapLogger();
 
 try
 {
+    Log.Information("Iniciando aplicação Auction.Api...");
+
     var builder = WebApplication.CreateBuilder(args);
+
+    builder.Host.UseSerilog((context, services, config) =>
+        config
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext());
+
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddApiServices();
     builder.Services.AddApplication();
@@ -20,13 +36,13 @@ try
 
     app.Run();
 }
-catch (Exception ex)
+catch (Exception ex) when (ex is not HostAbortedException)
 {
-    Console.Error.WriteLine($"Fatal error during application startup: {ex.Message}");
-    Console.Error.WriteLine(ex.StackTrace);
+    Log.Fatal(ex, "Erro fatal durante a inicialização da aplicação");
     throw;
 }
 finally
 {
-    Console.WriteLine("Application shutdown complete.");
+    Log.Information("Aplicação encerrada. Liberando recursos do Serilog...");
+    Log.CloseAndFlush();
 }

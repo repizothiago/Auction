@@ -25,7 +25,7 @@ public class GetBidsByAuctionQueryHandler
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
-            "Fetching bids for auction {AuctionId}, page {PageNumber}, size {PageSize}",
+            "[Consulta] Buscando lances do leilão: AuctionId={AuctionId}, Pagina={Pagina}, TamanhoPagina={TamanhoPagina}",
             query.AuctionId, query.PageNumber, query.PageSize);
 
         var bids = await _bidRepository.GetByAuctionIdAsync(

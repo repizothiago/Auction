@@ -24,7 +24,7 @@ public class GetAllAuctionsQueryHandler
         CancellationToken cancellationToken = default)
     {
         _logger.LogInformation(
-            "Fetching all auctions - Page: {PageNumber}, PageSize: {PageSize}",
+            "[Consulta] Buscando todos os leilões: Pagina={Pagina}, TamanhoPagina={TamanhoPagina}",
             query.PageNumber,
             query.PageSize);
 
@@ -33,7 +33,7 @@ public class GetAllAuctionsQueryHandler
             query.PageSize,
             cancellationToken);
 
-        _logger.LogInformation("Found {Count} auctions", auctions.Count);
+        _logger.LogInformation("[Consulta] Leilões encontrados: Total={Total}", auctions.Count);
 
         return auctions;
     }

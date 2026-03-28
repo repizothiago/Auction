@@ -25,7 +25,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
         var eventType = domainEvent.GetType();
         var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(eventType);
 
-        _logger.LogDebug("Dispatching domain event: {EventType}", eventType.Name);
+        _logger.LogDebug("[EventoDominio] Despachando evento: TipoEvento={TipoEvento}", eventType.Name);
 
         // Buscar todos os handlers registrados para esse tipo de evento
         var handlers = _serviceProvider.GetServices(handlerType);
@@ -34,7 +34,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
 
         if (!handlersList.Any())
         {
-            _logger.LogWarning("No handlers found for domain event: {EventType}", eventType.Name);
+            _logger.LogWarning("[EventoDominio] Nenhum handler encontrado para o evento: TipoEvento={TipoEvento}", eventType.Name);
             return;
         }
 
@@ -49,7 +49,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
                     await task;
 
                     _logger.LogInformation(
-                        "Domain event {EventType} handled by {HandlerType}",
+                        "[EventoDominio] Evento processado com sucesso: TipoEvento={TipoEvento}, Handler={Handler}",
                         eventType.Name,
                         handler.GetType().Name);
                 }
@@ -57,7 +57,7 @@ public class DomainEventDispatcher : IDomainEventDispatcher
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Error handling domain event {EventType} with handler {HandlerType}",
+                    "[EventoDominio] Erro ao processar evento: TipoEvento={TipoEvento}, Handler={Handler}",
                     eventType.Name,
                     handler.GetType().Name);
                 throw;

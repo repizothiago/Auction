@@ -2,6 +2,7 @@
 using Auction.Api.Middleware;
 using Auction.Infrastructure.Utilities;
 using Scalar.AspNetCore;
+using Serilog;
 
 namespace Auction.Api.Extensions;
 
@@ -30,6 +31,10 @@ public static class ApiExtensions
         }
 
         app.UseHttpsRedirection();
+
+        app.UseSerilogRequestLogging();
+
+        app.UseMiddleware<CorrelationIdMiddleware>();
 
         // Converter para IApplicationBuilder para usar o middleware
         ((IApplicationBuilder)app).UseIdempotency();
@@ -67,17 +72,17 @@ public static class ApiExtensions
             if (File.Exists(sqlFilePath))
             {
                 await DatabaseSeederUtility.SeedFromSqlFileAsync(connectionString, sqlFilePath);
-                logger.LogInformation("✓ Seed data aplicado com sucesso! 10 leilões ativos disponíveis.");
+                logger.LogInformation("[Inicialização] Dados de seed aplicados com sucesso. 10 leilões ativos disponíveis.");
             }
             else
             {
-                logger.LogWarning("⚠ Arquivo de seed não encontrado: {SqlFilePath}", sqlFilePath);
+                logger.LogWarning("[Inicialização] Arquivo de seed não encontrado: CaminhoArquivo={CaminhoArquivo}", sqlFilePath);
             }
         }
         catch (Exception ex)
         {
             var logger = app.Services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "⚠ Erro ao aplicar seed data: {Message}", ex.Message);
+            logger.LogError(ex, "[Inicialização] Erro ao aplicar dados de seed: {MensagemErro}", ex.Message);
         }
 
         return app;
